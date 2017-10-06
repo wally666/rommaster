@@ -1,9 +1,16 @@
+#addin "Cake.Powershell"
+#addin "MagicChunks"
+#addin "nuget:?package=Cake.SqlServer"
+#tool "nuget:?package=xunit.runner.console"
+
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
+var environment = Argument<string>("environment", "dev");
+var adminSqlDatabasePassword = Argument<string>("adminSqlDatabasePassword", null);
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
@@ -13,12 +20,13 @@ var solutions = GetFiles("./../src/**/*.sln");
 var solutionPaths = solutions.Select(solution => solution.GetDirectory());
 var projects = GetFiles("./../src/**/*.csproj");
 var outputDir = MakeAbsolute(Directory("./../artifacts/"));
+object tokens = null;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
 
-Setup(() =>
+Setup((context) =>
 {
     // Executed BEFORE the first task.
 	Information("OutDir {0}", outputDir);
@@ -80,6 +88,111 @@ Task("Build")
                 .SetConfiguration(configuration));
     }
 });
+
+Task("Provision")
+    .Description("Azure resources provisioning")
+    .Does(() =>
+{
+	if(Environment.UserInteractive && string.IsNullOrEmpty(adminSqlDatabasePassword))
+	{
+	   Console.WriteLine("Enter new Azure SQL Database admin password:");
+	   adminSqlDatabasePassword = Console.ReadLine();
+	}
+	
+    var results = StartPowershellFile("azure/provision.ps1", new PowershellSettings()
+		//.SetFormatOutput()
+		.SetLogOutput()
+		.WithArguments(args =>
+			{
+				args.Append("Environment", environment)
+					.Append("-Verbose")
+					.Append("ErrorAction", "Stop")
+					//.AppendSecret("Password", adminSqlDatabasePassword)
+					.Append("Password", adminSqlDatabasePassword)
+					;
+			}));
+					
+	tokens = results.Last();
+
+	var returnCode = int.Parse(results[0].BaseObject.ToString());
+    if (returnCode != 0) 
+	{
+         throw new ApplicationException("Script failed to execute");
+    }
+});
+
+Task("TransformConfig")
+    .Does(() => {
+		
+		var path = outputDir.FullPath + @"/appsettings.json";
+		var target = outputDir.FullPath + @"/appsettings.json";
+		var transformations = new TransformationCollection {
+            { "azure/keyVaultBaseUrl", (string)getResultData(tokens, "AzureKeyVaults[0].vaultBaseUrl") },
+            { "azure/clientId", getResultData(tokens, "AzureCommon.ApplicationId").ToString() },
+			{ "azure/clientSecret", getResultData(tokens, "AzureCommon.ApplicationClientSecret").ToString() }
+          };
+		
+        TransformConfig(path, target, transformations);
+    });
+	
+Task("Publish")
+	.IsDependentOn("Build")
+    .IsDependentOn("Provision")
+	.IsDependentOn("TransformConfig")
+    .Does(() =>
+{
+	var connString = (string)getResultData(tokens, "AzureSqlDatabases[0].connectionString");
+    var dbName = (string)getResultData(tokens, "AzureSqlDatabases[0].TemplateParams.SqlDatabaseName");
+	var file = new FilePath(outputDir.FullPath + @"\RomMaster.Server.Database.dacpac");
+    var settings = new PublishDacpacSettings { 
+		GenerateDeploymentScript = true
+	};
+
+    PublishDacpacFile(connString, dbName, file, settings);
+});
+
+Func<object, string, object> getResultData = (result, path) => {
+	var properties = path.Split('.');
+	var property = properties.First().Split('[').First();
+	int? index = null;
+
+	foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(properties.First(), @"\[(?<INDEX>\d+)\]"))
+	{
+		if (match.Success)
+		{
+			index = int.Parse(match.Groups["INDEX"].Value);
+		}
+
+		break;
+	}
+
+	object value = null;
+	if (result is PSObject)
+	{
+		value = ((PSObject)result).Properties[property].Value;
+	} 
+	else if (result is System.Collections.Hashtable)
+	{
+		value = ((System.Collections.Hashtable)result)[property];
+	}
+
+	if (value is System.Management.Automation.PSObject)
+	{
+		value = ((System.Management.Automation.PSObject)value).BaseObject;
+	}
+
+	if (value is object[] && index.HasValue)
+	{
+		value = ((object[])value)[index.Value];
+	}
+
+	if (properties.Count() == 1)
+	{
+		return value;
+	}
+	
+	return getResultData(value, string.Join(".", properties.Skip(1)));
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // TARGETS

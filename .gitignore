@@ -290,3 +290,4 @@ __pycache__/
 # Cake
 devops/tools/
 devops/build.ps1
+devops/profile.*.json

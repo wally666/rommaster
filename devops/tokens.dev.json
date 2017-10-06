@@ -1,0 +1,66 @@
+{
+	Environment: {
+		prefix: 'dev'
+	},
+
+	Credentials: {
+		ProfilePath: '.\\profile.dev.json'
+	},
+	
+	AzureCommon: {		
+		SubscriptionName: 'dev',
+		TenantId: 'REMOVE?',
+		ApplicationDisplayName: 'rommaster',
+		ApplicationHomePageUlr: 'http://rommaster.com',
+		ApplicationClientSecret: 'REMOVE?',
+		applicationId: null
+	},
+	
+	AzureResourceGroups: [
+		{ Skip: 'false', Name: 'rommaster-dev-rg', Location: 'West Europe', Tags: { 'Owner': 'rommaster' }  }
+	],
+	
+	AzureKeyVaults: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', vaultBaseUrl: null,
+		TemplateParams: { KeyVaultName: 'rommaster-dev-kv', clientObjectId: null, supervisorObjectId: null },
+		Secrets: [
+		]}
+	],
+	
+	AzureAppInsights: [
+		{ Skip: 'true', ResourceGroupName: 'rommaster-dev-rg', TemplateParams: { AppInsightName: 'rommaster-ai', AppInsightType: 'other' }, KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-ai' } }
+	],
+	
+	AzureDashboards: [
+		{ Skip: 'true', ResourceGroupName: 'rommaster-dev-rg', TemplateParams: { DashboardName: 'rommaster-d', AppInsightName: 'rommaster-ai' } }
+	],
+	
+	AzureStorageAccounts: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', 
+		TemplateParams: { StorageAccountName: 'rommasterdevsa' }, 
+		KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-sa' },
+		connectionString: null, key: null }
+	],
+	
+	AzureAppServicePlans: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', TemplateParams: { AppServicePlanName: 'rommaster-asp', Sku: 'Basic', SkuCode: 'B1', WorkerSize: 0, WorkerSizeId: 0, NumberOfWorkers: 0 } }
+	],
+	
+	AzureAppServices: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', AlwaysOn: 'true',
+		TemplateParams: { AppServiceName: 'rommaster-as', AppServicePlanName: 'rommaster-asp' },
+		publishingUsername: null, publishingPassword: null }
+	],
+	
+	AzureSqlServers: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', 
+		TemplateParams: { SqlServerName: 'rommaster-dbs', AdministratorLogin: 'thermomix', administratorLoginPassword: null },
+		KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-dbs' } }
+	],
+	
+	AzureSqlDatabases: [
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', SkipCreatingFirewallRule: 'false', connectionString: null,
+		TemplateParams: { SqlDatabaseName: 'rommaster', SqlServerName: 'rommaster-dbs', administratorLoginPassword: null }, 
+		KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-db' } }
+	]
+}

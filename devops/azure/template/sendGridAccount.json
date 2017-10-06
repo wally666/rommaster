@@ -1,0 +1,67 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sendGridAccountName": {
+            "type": "string",
+        },
+        "plan_name": {
+            "type": "string",
+			"defaultValue": "free"
+        },
+        "plan_promotion_code": {
+            "type": "string",
+			"defaultValue": ""
+        },
+        "password": {
+            "type": "secureString",
+        },
+        "email": {
+            "type": "string",
+        },
+        "firstName": {
+            "type": "string",
+        },
+        "lastName": {
+            "type": "string",
+        },
+        "company": {
+            "type": "string",
+			"defaultValue": ""
+        },
+        "website": {
+            "type": "string",
+			"defaultValue": ""
+        }
+    },
+	"variables": {
+		"apiVersion": "2015-01-01",
+		"location": "[resourceGroup().location]",
+		"plan_publisher": "Sendgrid",
+		"plan_product": "sendgrid_azure",
+		"acceptMarketingEmails": "0"
+	},
+    "resources": [
+        {
+            "apiVersion": "[variables('apiVersion')]",
+            "name": "[parameters('sendGridAccountName')]",
+            "type": "Sendgrid.Email/accounts",
+            "location": "[variables('location')]",
+            "plan": {
+                "name": "[parameters('plan_name')]",
+                "publisher": "[variables('plan_publisher')]",
+                "product": "[variables('plan_product')]",
+                "promotionCode": "[parameters('plan_promotion_code')]"
+            },
+            "properties": {
+                "password": "[parameters('password')]",
+                "acceptMarketingEmails": "[variables('acceptMarketingEmails')]",
+                "email": "[parameters('email')]",
+                "firstName": "[parameters('firstName')]",
+                "lastName": "[parameters('lastName')]",
+                "company": "[parameters('company')]",
+                "website": "[parameters('website')]"
+            }
+        }
+    ]
+}

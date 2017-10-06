@@ -1,0 +1,54 @@
+﻿{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"SqlServerName": {
+			"type": "string",
+			"metadata": {
+				"description": "The name of the SQL Server."
+			}
+		},
+		"AdministratorLogin": {
+			"type": "string",
+			"metadata": {
+				"description": "The admin user of the SQL Server"
+			}
+		},
+		"administratorLoginPassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "The password of the admin user of the SQL Server"
+			}
+		}
+	},
+	"variables": {
+		"apiVersion": "2015-05-01-preview",
+		"location": "[resourceGroup().location]"
+	},
+	"resources": [{
+			"name": "[parameters('SqlServerName')]",
+			"type": "Microsoft.Sql/servers",
+			"location": "[resourceGroup().location]",
+			"apiVersion": "[variables('apiVersion')]",
+			"properties": {
+				"administratorLogin": "[parameters('AdministratorLogin')]",
+				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+				"version": "12.0"
+			}
+		}
+	],
+	"outputs": {
+		"ServerDomainName": {
+			"type": "string",
+			"value": "[reference(concat('Microsoft.Sql/servers/', parameters('SqlServerName'))).fullyQualifiedDomainName]"
+		},
+		"AdministratorLogin": {
+			"type": "string",
+			"value": "[parameters('AdministratorLogin')]"
+		},
+		"AdministratorLoginPassword": {
+			"type": "string",
+			"value": "[parameters('administratorLoginPassword')]"
+		}
+	}
+}

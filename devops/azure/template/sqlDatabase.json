@@ -1,0 +1,59 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "collation": {
+            "type": "string",
+			"defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+        },
+        "sqlDatabaseName": {
+            "type": "string",
+			"metadata": {
+				"description": "Name of the SQL Database."
+			}
+        },
+        "edition": {
+            "type": "string",
+			"defaultValue": "Basic",
+			"allowedValues": [
+				"Basic",
+				"Standard",
+				"Premium",
+				"PremiumRS"
+			],
+        },
+        "maxSizeBytes": {
+            "type": "string",
+			"defaultValue": "2147483648"
+        },
+        "sqlServerName": {
+            "type": "string"
+        },
+		"administratorLoginPassword": {
+			"type": "string"
+		}
+    },
+	"variables": {
+		"apiVersion": "2015-05-01-preview",
+		"location": "[resourceGroup().location]"		
+	},
+    "resources": [
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "[variables('apiVersion')]",
+			"location": "[variables('location')]",
+            "name": "[concat(parameters('sqlServerName'), '/', parameters('sqlDatabaseName'))]",
+            "properties": {
+                "collation": "[parameters('collation')]",
+                "edition": "[parameters('edition')]",
+                "maxSizeBytes": "[parameters('maxSizeBytes')]"
+            }
+        }
+    ],
+	"outputs": {
+		"connectionString": {
+			"type": "string",
+			"value": "[concat('Server=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName')), variables('apiVersion')).fullyQualifiedDomainName, ',1433;Database=', parameters('sqlDatabaseName'), ';User Id=', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName')), variables('apiVersion')).administratorLogin, ';Password=', parameters('administratorLoginPassword'), ';Trusted_Connection=False;Encrypt=True;Connection Timeout=30;')]"
+		}
+	}
+}
