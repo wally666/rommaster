@@ -18,6 +18,9 @@ function LoginToAzure {
 		Save-AzureRmContext -Path $profilePath
 	}
 
+	Write-Verbose ("Available subscriptions:")
+	Get-AzureRmSubscription
 	Write-Verbose ("Selecting subscription... '{0}'" -f $subscriptionName)
-    Get-AzureRmSubscription -SubscriptionName $subscriptionName | Set-AzureRmContext
+	$subscription = Get-AzureRmSubscription -SubscriptionName $subscriptionName
+	Set-AzureRmContext -TenantId $subscription.TenantId -SubscriptionId $subscription.Id
 }

@@ -2,6 +2,7 @@
 // INSTALL TOOLS
 ////////////////////////////////////
 #tool "nuget:https://www.nuget.org/api/v2?package=Microsoft.Data.Tools.Msbuild"
+#tool "nuget:?package=xunit.runner.console"
 
 ////////////////////////////////////
 // INSTALL ADDINS
@@ -9,7 +10,6 @@
 #addin "nuget:?package=Cake.SqlPackage"
 #addin "Cake.Powershell"
 #addin "MagicChunks"
-#tool "nuget:?package=xunit.runner.console"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
