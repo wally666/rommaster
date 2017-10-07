@@ -1,6 +1,14 @@
+////////////////////////////////////
+// INSTALL TOOLS
+////////////////////////////////////
+#tool "nuget:https://www.nuget.org/api/v2?package=Microsoft.Data.Tools.Msbuild"
+
+////////////////////////////////////
+// INSTALL ADDINS
+////////////////////////////////////
+#addin "nuget:?package=Cake.SqlPackage"
 #addin "Cake.Powershell"
 #addin "MagicChunks"
-#addin "nuget:?package=Cake.SqlServer"
 #tool "nuget:?package=xunit.runner.console"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +41,7 @@ Setup((context) =>
     Information("Running tasks...");
 });
 
-Teardown(() =>
+Teardown((context) =>
 {
     // Executed AFTER the last task.
     Information("Finished running tasks.");
@@ -107,8 +115,8 @@ Task("Provision")
 				args.Append("Environment", environment)
 					.Append("-Verbose")
 					.Append("ErrorAction", "Stop")
-					//.AppendSecret("Password", adminSqlDatabasePassword)
-					.Append("Password", adminSqlDatabasePassword)
+					.AppendSecret("Password", adminSqlDatabasePassword)
+					//.Append("Password", adminSqlDatabasePassword)
 					;
 			}));
 					
@@ -138,17 +146,17 @@ Task("TransformConfig")
 Task("Publish")
 	.IsDependentOn("Build")
     .IsDependentOn("Provision")
-	.IsDependentOn("TransformConfig")
+	//.IsDependentOn("TransformConfig")
     .Does(() =>
 {
 	var connString = (string)getResultData(tokens, "AzureSqlDatabases[0].connectionString");
-    var dbName = (string)getResultData(tokens, "AzureSqlDatabases[0].TemplateParams.SqlDatabaseName");
-	var file = new FilePath(outputDir.FullPath + @"\RomMaster.Server.Database.dacpac");
-    var settings = new PublishDacpacSettings { 
-		GenerateDeploymentScript = true
-	};
+	var file = new FilePath(outputDir.FullPath + @"\RomMaster.Server.SqlDatabase.dacpac");
 
-    PublishDacpacFile(connString, dbName, file, settings);
+	SqlPackagePublish(settings => 
+    {
+        settings.SourceFile = file;
+		settings.TargetConnectionString = connString;
+    });
 });
 
 Func<object, string, object> getResultData = (result, path) => {

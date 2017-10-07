@@ -43,10 +43,25 @@ function ProvisionSqlDatabases {
 		$startip = $ip
 		$endip = $ip
 		
+		try {
+		$deploymentStatus = Remove-AzureRmSqlServerFirewallRule `
+			-FirewallRuleName $token.FirewallRuleName `
+			-ResourceGroupName $token.ResourceGroupName `
+			-ServerName $token.TemplateParams.SqlServerName `
+			-WarningAction Continue `
+			-Force `
+			-ErrorAction Continue
+		}
+		catch {
+			Write-Verbose ("Problem with removing Firewall Rule")
+		}
+		
+		$deploymentStatus
+		
 		$deploymentStatus = New-AzureRmSqlServerFirewallRule `
 			-ResourceGroupName $token.ResourceGroupName `
 			-ServerName $token.TemplateParams.SqlServerName `
-			-FirewallRuleName "Sun" `
+			-FirewallRuleName $token.FirewallRuleName `
 			-StartIpAddress $startip -EndIpAddress $endip `
 			-Verbose
 		

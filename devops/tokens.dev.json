@@ -54,12 +54,12 @@
 	
 	AzureSqlServers: [
 		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', 
-		TemplateParams: { SqlServerName: 'rommaster-dbs', AdministratorLogin: 'thermomix', administratorLoginPassword: null },
+		TemplateParams: { SqlServerName: 'rommaster-dbs', AdministratorLogin: 'rommaster', administratorLoginPassword: null },
 		KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-dbs' } }
 	],
 	
 	AzureSqlDatabases: [
-		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', SkipCreatingFirewallRule: 'false', connectionString: null,
+		{ Skip: 'false', ResourceGroupName: 'rommaster-dev-rg', SkipCreatingFirewallRule: 'false', FirewallRuleName: 'deployment', connectionString: null,
 		TemplateParams: { SqlDatabaseName: 'rommaster', SqlServerName: 'rommaster-dbs', administratorLoginPassword: null }, 
 		KeyVault: { Name: 'rommaster-dev-kv', KeyPrefix: 'rommaster-db' } }
 	]
