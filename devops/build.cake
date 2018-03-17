@@ -1,43 +1,46 @@
 ////////////////////////////////////
 // INSTALL TOOLS
 ////////////////////////////////////
-#tool "nuget:https://www.nuget.org/api/v2?package=Microsoft.Data.Tools.Msbuild"
-#tool "nuget:?package=xunit.runner.console"
+// #tool nuget:?package=xunit.runner.console&version=2.3.1
+// #tool nuget:?package=OpenCover&version=4.6.519
+#tool nuget:?package=xunit.runner.console
+#tool nuget:?package=OpenCover
 
 ////////////////////////////////////
 // INSTALL ADDINS
 ////////////////////////////////////
-#addin "nuget:?package=Cake.SqlPackage"
 #addin "Cake.Powershell"
-#addin "MagicChunks"
+#addin nuget:?package=MagicChunks&version=2.0.0.119
+#addin "Cake.WebDeploy"
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
-
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
-var environment = Argument<string>("environment", "dev");
-var adminSqlDatabasePassword = Argument<string>("adminSqlDatabasePassword", null);
+var environment = Argument<string>("environment", "");
+var user = Argument<string>("user", "");
+var password = Argument<string>("password", "");
+var connectionString = Argument<string>("connectionString", "");
+var publishingUsername = Argument<string>("publishingUsername", "");
+var publishingPassword = Argument<string>("publishingPassword", "");
+var appInsightsInstrumentationKey = Argument<string>("appInsightsInstrumentationKey", "");
+var buildNumber = Argument<string>("buildNumber", "");
 
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
-
 var solutions = GetFiles("./../src/**/*.sln");
-var solutionPaths = solutions.Select(solution => solution.GetDirectory());
-var projects = GetFiles("./../src/**/*.csproj");
 var outputDir = MakeAbsolute(Directory("./../artifacts/"));
+//var deployDir = MakeAbsolute(Directory("./../"));
 object tokens = null;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
-
 Setup((context) =>
 {
     // Executed BEFORE the first task.
-	Information("OutDir {0}", outputDir);
     Information("Running tasks...");
 });
 
@@ -50,11 +53,12 @@ Teardown((context) =>
 ///////////////////////////////////////////////////////////////////////////////
 // TASK DEFINITIONS
 ///////////////////////////////////////////////////////////////////////////////
-
 Task("Clean")
     .Description("Cleans all directories that are used during the build process.")
     .Does(() =>
 {
+	var solutionPaths = solutions.Select(solution => solution.GetDirectory());
+	
     // Clean solution directories.
     foreach(var path in solutionPaths)
     {
@@ -90,34 +94,111 @@ Task("Build")
         Information("Building {0}", solution);
         MSBuild(solution, settings =>
             settings.SetPlatformTarget(PlatformTarget.MSIL)
-                .WithProperty("TreatWarningsAsErrors","true")
-				.WithProperty("OutDir", outputDir.FullPath)
-                .WithTarget("Build")
-                .SetConfiguration(configuration));
+				.WithProperty("DeleteExistingFiles", "true")
+				.WithProperty("TreatWarningsAsErrors", "true")
+				.WithProperty("OutDir", System.IO.Path.Combine(outputDir.FullPath, "bin"))
+				.WithTarget("Build")
+				.SetConfiguration(configuration));
     }
 });
+
+Task("Test")
+	.Description("Executes xUnit tests.")
+	.IsDependentOn("Build")
+	.Does(() =>
+{
+	OpenCover(
+		tool => tool.XUnit2(
+		System.IO.Path.Combine(outputDir.FullPath, "bin", "*.Tests.dll"),
+		new XUnit2Settings
+		{
+			XmlReport = true,
+			OutputDirectory = System.IO.Path.Combine(outputDir.FullPath, "bin"),
+			ShadowCopy = false
+		}),
+		System.IO.Path.Combine(outputDir.FullPath, "bin", "Coverage.xml"),
+		new OpenCoverSettings
+		{ 
+			ReturnTargetCodeOffset = 0
+		}
+			.WithFilter("+[RomMaster.*]*")
+			.WithFilter("-[*Tests*]*")
+		);
+});
+
+Task("Package")
+    .Description("Publish web application to file system.")
+    .IsDependentOn("Test")
+    .Does(() =>
+{
+	/*
+	var webCsproj = MakeAbsolute(File("./../src/HumanCapital.Web/HumanCapital.Web.csproj"));
+		
+	Information("Web publishing to file system {0}", webCsproj);
+	MSBuild(webCsproj, settings =>
+		settings.SetPlatformTarget(PlatformTarget.MSIL)
+			.WithProperty("DeployOnBuild","True")
+			.WithProperty("DeployDefaultTarget","WebPublish")
+			.WithProperty("WebPublishMethod","FileSystem")				
+			.WithProperty("DeleteExistingFiles","True")
+			.WithProperty("PublishUrl", System.IO.Path.Combine(outputDir.FullPath, "bin", "_PublishedWebsites", "HumanCapital.Web_Package"))
+			.SetConfiguration(configuration));
+	*/
+});
+
+Task("Copy-DeployScripts")
+    .Description("Builds package with deployment scripts")
+	.IsDependentOn("Package")
+    .Does(()=>
+{
+	/*
+        var outputDeployDir = System.IO.Path.Combine(outputDir.FullPath, "deploy");
+        CreateDirectory(outputDeployDir);
+        CreateDirectory(System.IO.Path.Combine(outputDeployDir, "tools"));
+		
+        CopyDirectory("azure", System.IO.Path.Combine(outputDeployDir, "azure"));
+		CopyFileToDirectory("bootstrapper.ps1", outputDeployDir);
+		CopyFileToDirectory("build.cake", outputDeployDir);
+		CopyFileToDirectory("deploy.cmd", outputDeployDir);
+		CopyFileToDirectory("tools\\packages.config", System.IO.Path.Combine(outputDeployDir, "tools"));
+	*/
+ });
 
 Task("Provision")
     .Description("Azure resources provisioning")
     .Does(() =>
 {
-	if(Environment.UserInteractive && string.IsNullOrEmpty(adminSqlDatabasePassword))
-	{
-	   Console.WriteLine("Enter new Azure SQL Database admin password:");
-	   adminSqlDatabasePassword = Console.ReadLine();
-	}
-	
-    var results = StartPowershellFile("azure/provision.ps1", new PowershellSettings()
-		//.SetFormatOutput()
+    var results = StartPowershellFile("../../../devops/Azure/provision.ps1", new PowershellSettings()
 		.SetLogOutput()
 		.WithArguments(args =>
 			{
-				args.Append("Environment", environment)
-					.Append("-Verbose")
-					.Append("ErrorAction", "Stop")
-					.AppendSecret("Password", adminSqlDatabasePassword)
-					//.Append("Password", adminSqlDatabasePassword)
-					;
+				args.Append("Environment", $"\"{environment}\"");
+				
+				if(!String.IsNullOrEmpty(user) && !String.IsNullOrEmpty(password))
+				{
+					args.Append("UserName", $"\"{user}\"")
+						.Append("UserPassword", $"\"{password}\"");
+				}
+				
+				if(!String.IsNullOrEmpty(connectionString))
+				{
+					args.Append("ConnectionString", $"\"{connectionString}\"");				
+				}
+
+				if(!String.IsNullOrEmpty(publishingUsername) && !String.IsNullOrEmpty(publishingPassword))
+				{
+					args.Append("PublishingUsername", $"\"{publishingUsername}\"")
+						.Append("PublishingPassword", $"\"{publishingPassword}\"");
+					
+				}
+				
+				if(!String.IsNullOrEmpty(appInsightsInstrumentationKey))
+				{
+					args.Append("AppInsightsInstrumentationKey", $"\"{appInsightsInstrumentationKey}\"");				
+				}				
+				
+				args.Append("-Verbose")
+					.Append("ErrorAction", "Stop");
 			}));
 					
 	tokens = results.Last();
@@ -130,25 +211,28 @@ Task("Provision")
 });
 
 Task("TransformConfig")
-    .Does(() => {
+    .Description("Transform web.config")
+	.IsDependentOn("Provision")
+    .Does(() => 
+{	
+	// Transform web.config	
+	var path = System.IO.Path.Combine(outputDir.FullPath, "bin");
+	var config = System.IO.Path.Combine(path, "appsettings.json");
 		
-		var path = outputDir.FullPath + @"/appsettings.json";
-		var target = outputDir.FullPath + @"/appsettings.json";
-		var transformations = new TransformationCollection {
+	var transformations = new TransformationCollection {
             { "azure/keyVaultBaseUrl", (string)getResultData(tokens, "AzureKeyVaults[0].vaultBaseUrl") },
-            { "azure/clientId", getResultData(tokens, "AzureCommon.ApplicationId").ToString() },
-			{ "azure/clientSecret", getResultData(tokens, "AzureCommon.ApplicationClientSecret").ToString() }
+			{ "azure/clientId", getResultData(tokens, "Credentials.applicationId").ToString() },
+			{ "azure/clientSecret", (string)getResultData(tokens, "Credentials.ApplicationClientSecret") }
           };
 		
-        TransformConfig(path, target, transformations);
-    });
-	
+        TransformConfig(config, config, transformations);
+});
+
 Task("Publish")
-	.IsDependentOn("Build")
-    .IsDependentOn("Provision")
-	//.IsDependentOn("TransformConfig")
+	.IsDependentOn("TransformConfig")
     .Does(() =>
 {
+	/*
 	var connString = (string)getResultData(tokens, "AzureSqlDatabases[0].connectionString");
 	var file = new FilePath(outputDir.FullPath + @"\RomMaster.Server.SqlDatabase.dacpac");
 
@@ -157,6 +241,48 @@ Task("Publish")
         settings.SourceFile = file;
 		settings.TargetConnectionString = connString;
     });
+	*/
+                              
+
+		var siteName = getResultData(tokens, "AzureAppServices.TemplateParams.AppServiceName").ToString();
+		var userName = getResultData(tokens, "AzureAppServices.publishingUsername").ToString();
+		
+		if(!userName.StartsWith("$"))
+		{
+			userName = $"${userName}";
+		}
+		
+		DeployWebsite(new DeploySettings()
+			.FromSourcePath(System.IO.Path.Combine(outputDir.FullPath, "bin", "_PublishedWebsites", "HumanCapital.Web_Package"))
+			.UseSiteName(siteName)
+			.UseComputerName("https://" + siteName + ".scm.azurewebsites.net:443/msdeploy.axd?site=" + siteName)
+			.UseUsername(userName)
+			.UsePassword(getResultData(tokens, "AzureAppServices.publishingPassword").ToString())
+			.SetDelete(false)
+			);
+});
+
+Task("AfterPublish")
+	.IsDependentOn("Publish")
+    .Does(() =>
+{
+/*
+    var results = StartPowershellFile(System.IO.Path.Combine(outputDir.FullPath, "deploy", "azure", "cmdlet", "Execute-KuduCommand.ps1"), new PowershellSettings()
+		.SetLogOutput()
+		.WithArguments(args =>
+			{
+				args.Append("Sitename", getResultData(tokens, "AzureAppServices.TemplateParams.AppServiceName").ToString())
+					.Append("Password", getResultData(tokens, "AzureAppServices.publishingPassword").ToString())
+					.Append("Command", $"\"{getResultData(tokens, "KuduConsole.Command").ToString()}\"")
+					.Append("Directory", getResultData(tokens, "KuduConsole.Directory").ToString());
+			}));
+
+	var returnCode = int.Parse(results[0].BaseObject.ToString());
+    if (returnCode != 0) 
+	{
+         throw new ApplicationException("Script failed to execute");
+    }
+	*/
 });
 
 Func<object, string, object> getResultData = (result, path) => {
@@ -205,13 +331,19 @@ Func<object, string, object> getResultData = (result, path) => {
 ///////////////////////////////////////////////////////////////////////////////
 // TARGETS
 ///////////////////////////////////////////////////////////////////////////////
-
 Task("Default")
     .Description("This is the default task which will be ran if no specific target is passed in.")
-    .IsDependentOn("Build");
-
+    .IsDependentOn("BuildAll");
+	
+Task("BuildAll")
+    .Description("Build umbraco and mocks solutions")
+    .IsDependentOn("Copy-DeployScripts");
+	
+Task("DeployAll")
+    .Description("Deploy umbraco and mocks on Azure Cloud.")
+    .IsDependentOn("AfterPublish");
+	
 ///////////////////////////////////////////////////////////////////////////////
 // EXECUTION
 ///////////////////////////////////////////////////////////////////////////////
-
 RunTarget(target);

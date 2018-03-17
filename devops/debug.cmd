@@ -1,1 +1,0 @@
-.\tools\Cake\Cake.exe .\build.cake -target=Publish --debug --settings_skipverification=true

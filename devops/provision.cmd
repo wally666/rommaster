@@ -1,5 +1,5 @@
 :start
-powershell -f ./build.ps1 -Target Provision -Verbose --settings_skipverification=true
+powershell -File ../../../devops/Azure/provision.ps1 -Verbose -ErrorAction Stop -Environment dev
 if errorlevel 1 (
 echo error 1
 pause
