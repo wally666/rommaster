@@ -107,6 +107,15 @@ Task("Test")
 	.IsDependentOn("Build")
 	.Does(() =>
 {
+	var projects = GetFiles("./../src/**/*.Tests.csproj");
+	foreach(var project in projects)
+    {
+		Information("Testing {0}", project);
+		DotNetCoreTest(project.FullPath);
+	}
+	
+	return;
+	
 	OpenCover(
 		tool => tool.XUnit2(
 		System.IO.Path.Combine(outputDir.FullPath, "bin", "*.Tests.dll"),

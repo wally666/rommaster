@@ -21,8 +21,15 @@
         
         public Models.DataFile Parse(string filePathName)
         {
-            using (var fs = new FileStream(filePathName, FileMode.Open))
-            using (XmlReader reader = XmlReader.Create(fs, settings))
+            using (var stream = new FileStream(filePathName, FileMode.Open))
+            {
+                return Parse(stream);
+            }
+        }
+
+        public Models.DataFile Parse(Stream stream)
+        {
+            using (XmlReader reader = XmlReader.Create(stream, settings))
             {
                 return (Models.DataFile)serializer.Deserialize(reader);
             }
