@@ -6,7 +6,9 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using RomMaster.BusinessLogic.Services;
+    using RomMaster.Client.Database;
     using RomMaster.Common;
+    using RomMaster.Common.Database;
 
     public static class Program
     {
@@ -29,6 +31,8 @@
                     services.Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"));
 
                     services.AddSingleton<IHostedService, Watcher>();
+
+                    services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
                 })
                 .ConfigureLogging((hostingContext, logging) => {
                     logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));

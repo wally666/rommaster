@@ -22,6 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RomMaster.BusinessLogic\RomMaster.BusinessLogic.csproj" />
+    <ProjectReference Include="..\RomMaster.Client.Database\RomMaster.Client.Database.csproj" />
+    <ProjectReference Include="..\RomMaster.Common.Database\RomMaster.Common.Database.csproj" />
     <ProjectReference Include="..\RomMaster.Common\RomMaster.Common.csproj" />
     <ProjectReference Include="..\RomMaster.DatFileParser\RomMaster.DatFileParser.csproj" />
   </ItemGroup>
