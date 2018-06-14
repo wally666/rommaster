@@ -8,7 +8,7 @@
     using RomMaster.BusinessLogic.Services;
     using RomMaster.Common;
 
-    static class Program
+    public static class Program
     {
         public static async Task Main(string[] args)
         {
