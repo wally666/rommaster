@@ -3,24 +3,30 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    //using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    //using RomMaster.Client.Database;
+    //using RomMaster.Client.Database.Models;
     using RomMaster.Common;
+    using RomMaster.Common.Database;
 
     public class Watcher : IHostedService, IDisposable
     {
-        ILogger<Watcher> logger;
-        IOptions<AppSettings> appSettings;
+        private readonly ILogger<Watcher> logger;
+        private readonly IOptions<AppSettings> appSettings;
+        private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-        List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
+        private readonly List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
 
-        public Watcher(ILogger<Watcher> logger, IOptions<AppSettings> appSettings)
+        public Watcher(ILogger<Watcher> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory)
         {
             this.logger = logger;
             this.appSettings = appSettings;
+            this.unitOfWorkFactory = unitOfWorkFactory;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -30,7 +36,13 @@
             watchers.AddRange(CreateWatchers(appSettings.Value.DatRoots));
             watchers.AddRange(CreateWatchers(appSettings.Value.RomRoots));
             watchers.AddRange(CreateWatchers(appSettings.Value.ToSortRoots));
-            
+
+            //using (var uow = unitOfWorkFactory.Create())
+            //{
+            //    var repo = uow.GetRepository<Dat>();
+            //    var any = repo.All().Any();
+            //}
+
             return Task.CompletedTask;
         }
 

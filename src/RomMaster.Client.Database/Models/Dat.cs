@@ -1,5 +1,6 @@
 ﻿namespace RomMaster.Client.Database.Models
 {
+    using RomMaster.Common.Database;
     using System;
     using System.Collections.Generic;
 
@@ -14,7 +15,7 @@
 
     */
 
-    public class Dat// : Entity
+    public class Dat : IEntity
     {
         public int Id { get; private set; }
 

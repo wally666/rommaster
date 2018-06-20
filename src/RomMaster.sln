@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "RomMaster.Server.SqlDatabase", "RomMaster.Server.SqlDatabase\RomMaster.Server.SqlDatabase.sqlproj", "{878BE769-72D1-4213-A243-499601AD79E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.Server.WebJob", "RomMaster.Server.WebJob\RomMaster.Server.WebJob.csproj", "{C110B1D7-6D38-42D0-9D4C-A7FFEDFA62B6}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B3888D4-98C1-4E01-B1D0-F584C0C1CFA4}"
 	ProjectSection(SolutionItems) = preProject
 		nlog.config = nlog.config
@@ -22,9 +20,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.BusinessLogic", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Common", "RomMaster.Common\RomMaster.Common.csproj", "{CDB642A1-F1F3-4881-BAE9-4962EE98569B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.Client.Database", "RomMaster.Client.Database\RomMaster.Client.Database.csproj", "{C1C54507-6A2D-44C7-9B84-88668CB1D4C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Client.Database", "RomMaster.Client.Database\RomMaster.Client.Database.csproj", "{C1C54507-6A2D-44C7-9B84-88668CB1D4C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.Common.Database", "RomMaster.Common.Database\RomMaster.Common.Database.csproj", "{A4FDECD8-5A24-4A74-9DE2-22747DDE24E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Common.Database", "RomMaster.Common.Database\RomMaster.Common.Database.csproj", "{A4FDECD8-5A24-4A74-9DE2-22747DDE24E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,10 +36,6 @@ Global
 		{878BE769-72D1-4213-A243-499601AD79E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{878BE769-72D1-4213-A243-499601AD79E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{878BE769-72D1-4213-A243-499601AD79E1}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{C110B1D7-6D38-42D0-9D4C-A7FFEDFA62B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C110B1D7-6D38-42D0-9D4C-A7FFEDFA62B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C110B1D7-6D38-42D0-9D4C-A7FFEDFA62B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C110B1D7-6D38-42D0-9D4C-A7FFEDFA62B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{09426567-8A33-40C1-9D51-29DA7214C6BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{09426567-8A33-40C1-9D51-29DA7214C6BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09426567-8A33-40C1-9D51-29DA7214C6BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
