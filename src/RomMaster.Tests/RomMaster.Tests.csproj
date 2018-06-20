@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\RomMaster.DatFileParser\datafile.dtd" Link="datafile.dtd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.3.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0-preview-20180605-02" />
     <PackageReference Include="xunit" Version="2.4.0-beta.2.build4010" />
@@ -16,7 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="fixDat_Sony - PlayStation Portable %2820180309-050057%29.dat">
+    <None Update="1fichier.com-PSP.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="fixDat_Sony - PlayStation Portable (20180309-050057).dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
