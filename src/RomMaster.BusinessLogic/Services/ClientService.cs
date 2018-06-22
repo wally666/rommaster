@@ -14,15 +14,13 @@
     {
         private readonly ILogger<ClientService> logger;
         private readonly IOptions<AppSettings> appSettings;
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly FileWatcherService fileWatcherService;
         private readonly DatFileService datFileService;
 
-        public ClientService(ILogger<ClientService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory, FileWatcherService fileWatcherService, DatFileService datFileService)
+        public ClientService(ILogger<ClientService> logger, IOptions<AppSettings> appSettings, FileWatcherService fileWatcherService, DatFileService datFileService)
         {
             this.logger = logger;
             this.appSettings = appSettings;
-            this.unitOfWorkFactory = unitOfWorkFactory;
             this.fileWatcherService = fileWatcherService;
             this.datFileService = datFileService;
 
@@ -42,7 +40,7 @@
             await base.StartAsync(cancellationToken);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken cancellationToken)
         {
             logger.LogDebug($"{this.GetType()} is starting.");
             cancellationToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
@@ -65,7 +63,7 @@
                     if (cancellationToken.IsCancellationRequested)
                     {
                         logger.LogWarning($"Processing Dat file '{dat}' ({++index}/{datCount}) has been cancelled.");
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     datFileService.Enqueue(dat);
@@ -75,6 +73,7 @@
             }
 
             logger.LogDebug($"{this.GetType()} background task is stopping.");
+            return Task.CompletedTask;
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

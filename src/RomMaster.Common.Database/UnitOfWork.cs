@@ -9,7 +9,7 @@
     {
         private bool disposed = false;
         private readonly DbContext context;
-        private Dictionary<Type, object> repositories = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, object> repositories = new Dictionary<Type, object>();
 
         public UnitOfWork(DbContext context)
         {

@@ -64,20 +64,46 @@
         {
             using (var uow = unitOfWorkFactory.Create())
             {
-                var repo = uow.GetRepository<Dat>();
-                var datFile = this.datFileParser.Parse(item.File);
+                var repoDat = uow.GetRepository<Dat>();
+                // var repoGame = uow.GetRepository<Game>();
+                // var repoRom = uow.GetRepository<Rom>();
 
-                await repo.AddAsync(new Dat
+                DatFileParser.Models.DataFile datFile;
+                try
+                {
+                    datFile = this.datFileParser.Parse(item.File);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+                    return;
+                }
+
+                if (await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version) != null)
+                {
+                    logger.LogDebug($"DatFile '{item.File}' duplicated. Skipping.");
+                    return;
+                }
+
+                await repoDat.AddAsync(new Dat
                 {
                     Name = datFile.Header.Name,
                     Description = datFile.Header.Description,
                     Version = datFile.Header.Version,
                     Category = datFile.Header.Category,
                     Author = datFile.Header.Author,
-                    // Date = datFile.Header.Date
+                    // Date = datFile.Header.Date //TODO: parse date
+                    // Games = datFile.
                 });
-
-                await uow.CommitAsync();
+                
+                try
+                {
+                    await uow.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+                }
             }
         }
     }

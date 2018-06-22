@@ -18,6 +18,8 @@
             builder.Property(a => a.Author).IsRequired(false);
             builder.Property(a => a.Category).IsRequired(false);
 
+            builder.HasIndex(a => new {a.Name, a.Version}).IsUnique(true);
+
             //builder.Property(a => a.CurrentPrice).IsRequired().HasColumnType("DECIMAL(18, 2)");
             //builder.HasMany(a => a.ImageSlots);
             //builder.Property(a => a.CurrentCurrency).HasMaxLength(50).IsRequired();

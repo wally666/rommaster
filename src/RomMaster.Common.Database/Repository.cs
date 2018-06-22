@@ -4,18 +4,17 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Linq.Expressions;
     using System;
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
     {
-        private DbContext context;
-        private DbSet<TEntity> dbSet;
+        // private readonly DbContext context;
+        private readonly DbSet<TEntity> dbSet;
 
         public Repository(DbContext context)
         {
-            this.context = context;
+            // this.context = context;
             dbSet = context.Set<TEntity>();
         }
 

@@ -56,7 +56,6 @@
         public void FilterGeneratedReport(string filePathName)
         { 
             var outputFilePathName = @"JDownloader.dat";
-            var parser = new RomMaster.DatFileParser.Parser();
             var model = parser.Parse(filePathName);
 
             filePathName = @"1fichier.com-PSP.txt";
