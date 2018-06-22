@@ -3,7 +3,11 @@ ROM Master helps to manage collections of games supported by an emulator
 
 ### Requirements
 
-1. .Net Framework v4.7
+1. [.Net Core 2.1](https://www.microsoft.com/net/download/dotnet-core)
+
+### Test
+
+Execute `/devops/test.cmd`
 
 ### Installation
 

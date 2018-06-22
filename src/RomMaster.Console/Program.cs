@@ -7,10 +7,11 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using RomMaster.BusinessLogic.Services;
-    using RomMaster.Client.Database;
-    using RomMaster.Common;
-    using RomMaster.Common.Database;
+    using BusinessLogic.Services;
+    using Client.Database;
+    using Common;
+    using Common.Database;
+    using RomMaster.DatFileParser;
 
     public static class Program
     {
@@ -19,10 +20,11 @@
             var builder = new HostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.SetBasePath(Environment.CurrentDirectory);
-                    config.AddJsonFile("appsettings.json", optional: false);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
-                    config.AddEnvironmentVariables();
+                    config.SetBasePath(Environment.CurrentDirectory)
+                        .AddJsonFile("appsettings.json", optional: false)
+                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
+                            optional: true)
+                        .AddEnvironmentVariables();
 
                     if (args != null)
                     {
@@ -31,17 +33,24 @@
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.AddOptions();
-                    services.Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"));
-
-                    services.AddDbContext<DatabaseContext>(options => options.UseSqlite(hostContext.Configuration.GetSection("AppSettings").GetConnectionString("sqlite")));
-
-                    services.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>();
-                    services.AddSingleton<IHostedService, Watcher>();
+                    services.AddOptions()
+                        .Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"))
+                        .AddDbContext<DatabaseContext>(options =>
+                        {
+                            options.UseSqlite(hostContext.Configuration.GetSection("AppSettings")
+                                    .GetConnectionString("sqlite"))
+                                .EnableSensitiveDataLogging(true);
+                        })
+                        .AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>()
+                        .AddSingleton<Parser>()
+                        .AddSingleton<FileWatcherService>()
+                        .AddSingleton<DatFileService>()
+                        .AddSingleton<IHostedService, ClientService>();
                 })
-                .ConfigureLogging((hostingContext, logging) => {
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
+                        .AddConsole();
                 });
 
             await builder.RunConsoleAsync();

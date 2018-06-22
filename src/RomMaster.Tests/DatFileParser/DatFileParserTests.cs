@@ -47,7 +47,7 @@
         {
             using (var stream = new FileStream(filePathName, FileMode.Open))
             {
-                parser.Validate(stream);
+                // parser.Validate(stream);
             }
         }
 
