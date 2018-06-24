@@ -21,9 +21,9 @@
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.SetBasePath(Environment.CurrentDirectory)
-                        .AddJsonFile("appsettings.json", optional: false)
+                        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                         .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json",
-                            optional: true)
+                            optional: true, reloadOnChange: false)
                         .AddEnvironmentVariables();
 
                     if (args != null)

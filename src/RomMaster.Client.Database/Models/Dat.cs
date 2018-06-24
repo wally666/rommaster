@@ -27,7 +27,7 @@
 
         public string Version { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         public string Author { get; set; }
 

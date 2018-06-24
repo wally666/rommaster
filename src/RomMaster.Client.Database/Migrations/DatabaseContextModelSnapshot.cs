@@ -25,9 +25,10 @@ namespace RomMaster.Client.Database.Migrations
 
                     b.Property<string>("Category");
 
-                    b.Property<DateTime>("Date");
+                    b.Property<DateTime?>("Date");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .IsRequired();
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -69,21 +70,18 @@ namespace RomMaster.Client.Database.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Crc")
-                        .IsRequired();
+                    b.Property<string>("Crc");
 
                     b.Property<int?>("GameId");
 
-                    b.Property<string>("Md5")
-                        .IsRequired();
+                    b.Property<string>("Md5");
 
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<string>("Sha1")
-                        .IsRequired();
+                    b.Property<string>("Sha1");
 
-                    b.Property<int>("Size");
+                    b.Property<uint>("Size");
 
                     b.HasKey("Id");
 

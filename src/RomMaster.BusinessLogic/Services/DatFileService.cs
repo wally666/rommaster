@@ -36,11 +36,12 @@
 
             stoppingToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
 
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // TODO
+            // await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // TODO
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var item = queue.Take(stoppingToken); //TODO: replace with async/awaitable call
+                var item = await Task.Run(() => queue.Take(stoppingToken));
+                // var item = queue.Take(stoppingToken); //TODO: replace with async/awaitable call
 
                 logger.LogDebug($"{this.GetType()} background task is procesing item '{item}'.");
 
@@ -85,16 +86,44 @@
                     return;
                 }
 
-                await repoDat.AddAsync(new Dat
+                var dat = new Dat
                 {
                     Name = datFile.Header.Name,
                     Description = datFile.Header.Description,
                     Version = datFile.Header.Version,
                     Category = datFile.Header.Category,
                     Author = datFile.Header.Author,
-                    // Date = datFile.Header.Date //TODO: parse date
-                    // Games = datFile.
-                });
+                    // 11-22-2014
+                    Date = ParseDateTime(datFile.Header.Date)
+                };
+
+                foreach (var game in datFile.Games)
+                {
+                    var g = new Game
+                    {
+                        Name = game.Name,
+                        Description = game.Description,
+                        Year = game.Year
+                    };
+
+                    foreach (var rom in game.Roms)
+                    {
+                        var r = new Rom
+                        {
+                            Name = rom.Name,
+                            Size = rom.Size,
+                            Crc = rom.Crc,
+                            Md5 = rom.Md5,
+                            Sha1 = rom.Sha1
+                        };
+
+                        g.Roms.Add(r);
+                    }
+
+                    dat.Games.Add(g);
+                }
+
+                await repoDat.AddAsync(dat);
                 
                 try
                 {
@@ -105,6 +134,16 @@
                     logger.LogError(ex, ex.Message);
                 }
             }
+        }
+
+        private DateTime? ParseDateTime(string date)
+        {
+            if (DateTime.TryParseExact(date, "MM-dd-yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime result))
+            {
+                return result;
+            }
+
+            return null;
         }
     }
 }

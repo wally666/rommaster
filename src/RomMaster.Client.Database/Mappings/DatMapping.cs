@@ -13,8 +13,9 @@
 
             builder.HasMany(a => a.Games);
             builder.Property(a => a.Version).IsRequired();
-            builder.Property(a => a.Date).IsRequired();
+            builder.Property(a => a.Date).IsRequired(false);
             builder.Property(a => a.Name).IsRequired();
+            builder.Property(a => a.Description).IsRequired();
             builder.Property(a => a.Author).IsRequired(false);
             builder.Property(a => a.Category).IsRequired(false);
 
