@@ -33,6 +33,8 @@
 
         public virtual ISet<Game> Games { get; set; }
 
+        public File File { get; set; }
+
         public Dat()
         {
             this.Games = new HashSet<Game>();

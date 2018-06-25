@@ -59,10 +59,11 @@
                 var index = 0;
                 foreach (var dat in dats)
                 {
-                    logger.LogInformation($"Processing Dat file '{dat}' ({++index}/{datCount})");
+                    ++index;
+                    logger.LogInformation($"Processing [{(float)index / datCount * 100, 3:000}] Dat file '{dat}' ({index}/{datCount})");
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        logger.LogWarning($"Processing Dat file '{dat}' ({++index}/{datCount}) has been cancelled.");
+                        logger.LogWarning($"Processing Dat file '{dat}' ({index}/{datCount}) has been cancelled.");
                         return Task.CompletedTask;
                     }
 

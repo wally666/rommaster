@@ -33,18 +33,12 @@
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogDebug($"{this.GetType()} is starting.");
-
             stoppingToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
-
-            // await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // TODO
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var item = await Task.Run(() => queue.Take(stoppingToken));
-                // var item = queue.Take(stoppingToken); //TODO: replace with async/awaitable call
-
-                logger.LogDebug($"{this.GetType()} background task is procesing item '{item}'.");
-
+                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
+                logger.LogInformation($"{this.GetType()} background task is procesing [{queue.Count}] item '{item}'.");
                 await Process(item);
             }
 
@@ -66,10 +60,14 @@
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repoDat = uow.GetRepository<Dat>();
-                // var repoGame = uow.GetRepository<Game>();
-                // var repoRom = uow.GetRepository<Rom>();
-
                 DatFileParser.Models.DataFile datFile;
+
+                if (await repoDat.FindAsync(a => a.File != null && a.File.Path == item.File) != null)
+                {
+                    logger.LogDebug($"DatFile '{item.File}' already processed. Skipping.");
+                    return;
+                }
+
                 try
                 {
                     datFile = this.datFileParser.Parse(item.File);
@@ -80,21 +78,25 @@
                     return;
                 }
 
-                if (await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version) != null)
+                Dat dat = await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version);
+                if (dat != null)
                 {
                     logger.LogDebug($"DatFile '{item.File}' duplicated. Skipping.");
                     return;
                 }
 
-                var dat = new Dat
+                dat = new Dat
                 {
                     Name = datFile.Header.Name,
                     Description = datFile.Header.Description,
                     Version = datFile.Header.Version,
                     Category = datFile.Header.Category,
                     Author = datFile.Header.Author,
-                    // 11-22-2014
-                    Date = ParseDateTime(datFile.Header.Date)
+                    Date = ParseDateTime(datFile.Header.Date),
+                    File = new File
+                    {
+                        Path = item.File
+                    }
                 };
 
                 foreach (var game in datFile.Games)
@@ -138,7 +140,20 @@
 
         private DateTime? ParseDateTime(string date)
         {
-            if (DateTime.TryParseExact(date, "MM-dd-yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime result))
+            if (string.IsNullOrEmpty(date))
+            {
+                return null;
+            }
+
+            DateTime result;
+
+            if (DateTime.TryParseExact(date, "MM-dd-yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+
+            //20140807 16-00-31
+            if (DateTime.TryParseExact(date, "yyyyMMdd HH-mm-ss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
             {
                 return result;
             }

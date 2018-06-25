@@ -8,7 +8,7 @@
         public DatabaseContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-            var connectionString = @"DataSource=:memory:";
+            var connectionString = @"DataSource=rommaster_designTime.sqlite";
 
             optionsBuilder.UseSqlite(connectionString);
             optionsBuilder.EnableSensitiveDataLogging();

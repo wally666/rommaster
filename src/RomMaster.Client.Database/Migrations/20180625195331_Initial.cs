@@ -8,6 +8,23 @@ namespace RomMaster.Client.Database.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "File",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Path = table.Column<string>(nullable: false),
+                    Size = table.Column<uint>(nullable: false),
+                    Crc = table.Column<string>(nullable: true),
+                    Sha1 = table.Column<string>(nullable: true),
+                    Md5 = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_File", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Dat",
                 columns: table => new
                 {
@@ -18,11 +35,18 @@ namespace RomMaster.Client.Database.Migrations
                     Category = table.Column<string>(nullable: true),
                     Version = table.Column<string>(nullable: false),
                     Date = table.Column<DateTime>(nullable: true),
-                    Author = table.Column<string>(nullable: true)
+                    Author = table.Column<string>(nullable: true),
+                    FileId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Dat", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Dat_File_FileId",
+                        column: x => x.FileId,
+                        principalTable: "File",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,9 +96,20 @@ namespace RomMaster.Client.Database.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Dat_FileId",
+                table: "Dat",
+                column: "FileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Dat_Name_Version",
                 table: "Dat",
                 columns: new[] { "Name", "Version" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_File_Path",
+                table: "File",
+                column: "Path",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -98,6 +133,9 @@ namespace RomMaster.Client.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "Dat");
+
+            migrationBuilder.DropTable(
+                name: "File");
         }
     }
 }

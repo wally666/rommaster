@@ -39,7 +39,7 @@
                         {
                             options.UseSqlite(hostContext.Configuration.GetSection("AppSettings")
                                     .GetConnectionString("sqlite"))
-                                .EnableSensitiveDataLogging(true);
+                                .EnableSensitiveDataLogging(false);
                         })
                         .AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>()
                         .AddSingleton<Parser>()
