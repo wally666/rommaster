@@ -12,6 +12,8 @@
     using Common;
     using Common.Database;
     using RomMaster.DatFileParser;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using System.Security.Cryptography;
 
     public static class Program
     {
@@ -45,7 +47,11 @@
                         .AddSingleton<Parser>()
                         .AddSingleton<FileWatcherService>()
                         .AddSingleton<DatFileService>()
-                        .AddSingleton<IHostedService, ClientService>();
+                        .AddSingleton<RomFileService>()
+                        .AddSingleton<ToSortFileService>()
+                        .AddSingleton<HashAlgorithm, Force.Crc32.Crc32Algorithm>()
+                        .AddSingleton<IHostedService, ClientService>()
+                        .Replace(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(TimedLogger<>)));
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

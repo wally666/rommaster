@@ -8,8 +8,6 @@
 
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {
-        // Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry Entity(TEntity entity);
-
         IQueryable<TEntity> All();
 
         TEntity Find(int id);
@@ -17,6 +15,8 @@
         Task<TEntity> FindAsync(int id);
 
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate);
+
+        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
 
         void Add(TEntity entity);
 

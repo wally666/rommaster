@@ -1,76 +1,53 @@
 ﻿namespace RomMaster.BusinessLogic.Services
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.Hosting;
-    using Models;
     using Client.Database.Models;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Common;
     using Common.Database;
     using RomMaster.DatFileParser;
+    using System.Collections.Generic;
+    using System.Security.Cryptography;
 
-    public class DatFileService : BackgroundService
+    public class DatFileService : FileService
     {
-        private readonly ILogger<DatFileService> logger;
-        private readonly IOptions<AppSettings> appSettings;
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly BlockingCollection<DatFileQueueItem> queue = new BlockingCollection<DatFileQueueItem>();
         private readonly Parser datFileParser;
 
-        public DatFileService(ILogger<DatFileService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory, Parser datFileParser)
+        public DatFileService(ILogger<DatFileService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory, HashAlgorithm crc32, Parser datFileParser)
+            : base(logger, appSettings, unitOfWorkFactory, crc32)
         {
-            this.logger = logger;
-            this.appSettings = appSettings;
-            this.unitOfWorkFactory = unitOfWorkFactory;
             this.datFileParser = datFileParser;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        public override IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings)
         {
-            logger.LogDebug($"{this.GetType()} is starting.");
-            stoppingToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
+            return appSettings.Value.DatRoots;
+        }
 
-            while (!stoppingToken.IsCancellationRequested)
+        protected override async Task PostProcess(File file)
+        {
+            if (!IsDatFile(file.Path))
             {
-                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
-                logger.LogInformation($"{this.GetType()} background task is procesing [{queue.Count}] item '{item}'.");
-                await Process(item);
+                logger.LogDebug($"DatFile '{file.Path}' can't be processed. Skipping.");
+                return;
             }
 
-            logger.LogDebug($"{this.GetType()} background task is stopping.");
-        }
-
-        public void Enqueue(string datFilePathName)
-        {
-            var item = new DatFileQueueItem
-            {
-                File = datFilePathName
-            };
-
-            queue.Add(item);
-        }
-
-        private async Task Process(DatFileQueueItem item)
-        {
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repoDat = uow.GetRepository<Dat>();
                 DatFileParser.Models.DataFile datFile;
 
-                if (await repoDat.FindAsync(a => a.File != null && a.File.Path == item.File) != null)
+                if (await repoDat.AnyAsync(a => a.File != null && a.File.Path == file.Path))
                 {
-                    logger.LogDebug($"DatFile '{item.File}' already processed. Skipping.");
+                    logger.LogDebug($"DatFile '{file.Path}' already processed. Skipping.");
                     return;
                 }
 
                 try
                 {
-                    datFile = this.datFileParser.Parse(item.File);
+                    datFile = this.datFileParser.Parse(file.Path);
                 }
                 catch (Exception ex)
                 {
@@ -81,7 +58,7 @@
                 Dat dat = await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version);
                 if (dat != null)
                 {
-                    logger.LogDebug($"DatFile '{item.File}' duplicated. Skipping.");
+                    logger.LogDebug($"DatFile '{file.Path}' duplicated. Skipping.");
                     return;
                 }
 
@@ -95,7 +72,7 @@
                     Date = ParseDateTime(datFile.Header.Date),
                     File = new File
                     {
-                        Path = item.File
+                        Path = file.Path
                     }
                 };
 
@@ -159,6 +136,23 @@
             }
 
             return null;
+        }
+
+        private bool IsDatFile(string file)
+        {
+            if (file.Contains('#'))
+            {
+                return false;
+            }
+
+            switch (System.IO.Path.GetExtension(file).ToLower())
+            {
+                //Dat
+                case ".dat":
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

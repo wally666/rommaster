@@ -1,7 +1,12 @@
 ﻿namespace RomMaster.BusinessLogic.Models
 {
-    internal class DatFileQueueItem
+    public class FileQueueItem
     {
         public string File { get; set; }
+
+        public override string ToString()
+        {
+            return File;
+        }
     }
 }

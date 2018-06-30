@@ -17,6 +17,7 @@
         private readonly List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
 
         public FileSystemEventHandler DatFileAdded { get; set; }
+        public FileSystemEventHandler ToSortFileAdded { get; set; }
 
         public FileWatcherService(ILogger<FileWatcherService> logger, IOptions<AppSettings> appSettings)
         {
@@ -30,7 +31,7 @@
 
             watchers.AddRange(CreateWatchers(appSettings.Value.DatRoots, OnDatFileAdded));
             watchers.AddRange(CreateWatchers(appSettings.Value.RomRoots));
-            watchers.AddRange(CreateWatchers(appSettings.Value.ToSortRoots));
+            watchers.AddRange(CreateWatchers(appSettings.Value.ToSortRoots, OnToSOrtFileAdded));
 
             return Task.CompletedTask;
         }
@@ -47,6 +48,11 @@
         protected virtual void OnDatFileAdded(object sender, FileSystemEventArgs e)
         {
             DatFileAdded?.Invoke(sender, e);
+        }
+
+        protected virtual void OnToSOrtFileAdded(object sender, FileSystemEventArgs e)
+        {
+            ToSortFileAdded?.Invoke(sender, e);
         }
 
         private IEnumerable<FileSystemWatcher> CreateWatchers(List<Folder> folders, FileSystemEventHandler onChanged = null)

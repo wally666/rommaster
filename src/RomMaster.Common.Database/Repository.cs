@@ -43,6 +43,11 @@
             return await dbSet.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await dbSet.AnyAsync(predicate);
+        }
+
         public void Add(TEntity entity)
         {
             dbSet.Add(entity);
