@@ -16,11 +16,6 @@
             this.context = context;
         }
 
-        public void Commit()
-        {
-            context.SaveChanges();
-        }
-
         public async Task CommitAsync()
         {
             await context.SaveChangesAsync();

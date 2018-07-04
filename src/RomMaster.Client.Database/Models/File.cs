@@ -8,7 +8,7 @@
 
         public string Path { get; set; }
 
-        public uint Size { get; set; }
+        public long Size { get; set; }
 
         public string Crc { get; set; }
 

@@ -42,8 +42,9 @@
                             options.UseSqlite(hostContext.Configuration.GetSection("AppSettings")
                                     .GetConnectionString("sqlite"))
                                 .EnableSensitiveDataLogging(false);
-                        })
-                        .AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>()
+                        }, ServiceLifetime.Transient)
+                        //.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>()
+                        .AddTransient<IUnitOfWorkFactory, UnitOfWorkFactory>()
                         .AddSingleton<Parser>()
                         .AddSingleton<FileWatcherService>()
                         .AddSingleton<DatFileService>()

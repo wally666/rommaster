@@ -40,8 +40,9 @@
 
             await fileWatcherService.StartAsync(cancellationToken);
             await datFileService.StartAsync(cancellationToken);
-            await romFileService.StartAsync(cancellationToken);
             await datFileService.WaitForQueueEmptyAsync(cancellationToken);
+
+            await romFileService.StartAsync(cancellationToken);
             await toSortFileService.StartAsync(cancellationToken);
 
             await base.StartAsync(cancellationToken);

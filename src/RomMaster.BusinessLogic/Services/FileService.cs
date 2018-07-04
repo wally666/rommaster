@@ -24,6 +24,20 @@
         private readonly BlockingCollection<FileQueueItem> queue = new BlockingCollection<FileQueueItem>();
         private readonly ManualResetEvent queueIsEmpty = new ManualResetEvent(false);
 
+        List<Exclude> excludes;
+        protected List<Exclude> Excludes
+        {
+            get
+            {
+                if (excludes == null)
+                {
+                    excludes = GetFolders(this.appSettings).SelectMany(a => a.Excludes).ToList();
+                }
+
+                return excludes;
+            }
+        }
+
         public FileService(ILogger<FileService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory, HashAlgorithm crc32)
         {
             this.logger = logger;
@@ -32,9 +46,9 @@
             this.crc32 = crc32;
         }
 
-        public abstract IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings);
+        protected abstract IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings);
 
-        public override Task StartAsync(CancellationToken cancellationToken)
+        public override async Task StartAsync(CancellationToken cancellationToken)
         {
             foreach (var folder in GetFolders(this.appSettings))
             {
@@ -55,7 +69,7 @@
                     if (cancellationToken.IsCancellationRequested)
                     {
                         logger.LogWarning($"Processing file '{file}' ({index}/{filesCount}) has been cancelled.");
-                        return Task.CompletedTask;
+                        return;
                     }
 
                     Enqueue(file);
@@ -64,7 +78,35 @@
                 logger.LogDebug($"Finished processing folder '{folder.Path}'. Found {filesCount} files.");
             }
 
-            return base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken);
+        }
+
+        private bool IsExcluded(string file)
+        {
+            return IsExcluded(file, Excludes);
+        }
+        
+        private bool IsExcluded(string file, List<Exclude> excludes)
+        {
+            if (!excludes.Any())
+            {
+                return false;
+            }
+
+            foreach (var exclude in excludes)
+            {
+                if (IsExcluded(file, exclude))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsExcluded(string file, Exclude exclude)
+        {
+            return exclude.Match(file);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -91,12 +133,18 @@
             logger.LogDebug($"{this.GetType()} background task is stopping.");
         }
 
-        public void Enqueue(string filePathName)
+        public void Enqueue(string file)
         {
             var item = new FileQueueItem
             {
-                File = filePathName
+                File = file
             };
+
+            if (IsExcluded(file))
+            {
+                logger.LogInformation($"File processing '{file}' excluded. Skipped.");
+                return;
+            }
 
             queue.Add(item);
         }
@@ -131,20 +179,22 @@
                             foreach (var entry in archive.Entries.Where(a => !a.IsDirectory))
                             {
                                 var fileName = $"{item.File}#{entry.Key}";
-                                file = await repoFile.FindAsync(a => a.Path == fileName);
-                                if (file == null)
-                                {
-                                    // store file info
-                                    file = new File
-                                    {
-                                        Crc = entry.Crc.ToString("X2"),
-                                        Path = fileName,
-                                        Size = Convert.ToUInt32(entry.Size)
-                                    };
 
-                                    await repoFile.AddAsync(file);
-                                    files.Add(file);
+                                if (await repoFile.AnyAsync(a => a.Path == fileName))
+                                {
+                                    continue;
                                 }
+
+                                // store file info
+                                file = new File
+                                {
+                                    Crc = entry.Crc.ToString("X2"),
+                                    Path = fileName,
+                                    Size = entry.Size
+                                };
+
+                                await repoFile.AddAsync(file);
+                                files.Add(file);
                             }
                         }
                     }
@@ -159,31 +209,33 @@
                         return files;
                     }
                 }
-                
+
                 // add file regardless it is archive
-                file = await repoFile.FindAsync(a => a.Path == item.File);
-                if (file == null)
+                string computedCrc32 = null;
+                long size = 0;
+                if (!IsArchive(item.File))
                 {
-                    string computedCrc32;
-                    long size;
                     using (var stream = System.IO.File.Open(item.File, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
                     {
                         size = stream.Length;
-                        var hash = crc32.ComputeHash(stream);
-                        computedCrc32 = BitConverter.ToString(hash).Replace("-", "");
+                        if (await repoFile.AnyAsync(a => a.Size == size))
+                        {
+                            var hash = crc32.ComputeHash(stream);
+                            computedCrc32 = BitConverter.ToString(hash).Replace("-", "");
+                        }
                     }
+                }
 
-                    // store file info
-                    file = new File
-                    {
-                        Crc = computedCrc32,
-                        Path = item.File,
-                        Size = Convert.ToUInt32(size)
-                    };
+                // store file info
+                file = new File
+                {
+                    Crc = computedCrc32, //null if archive
+                    Path = item.File,
+                    Size = size //0 if archive
+                };
 
-                    await repoFile.AddAsync(file);
-                    files.Add(file);
-                }                
+                await repoFile.AddAsync(file);
+                files.Add(file);
 
                 await uow.CommitAsync();
             }
@@ -196,7 +248,7 @@
             return Task.CompletedTask;
         }
 
-        private bool IsArchive(string file)
+        protected bool IsArchive(string file)
         {
             switch (System.IO.Path.GetExtension(file).ToLower())
             {

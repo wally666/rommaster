@@ -16,7 +16,7 @@
         {
         }
 
-        public override IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings)
+        protected override IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings)
         {
             return appSettings.Value.ToSortRoots;
         }
@@ -34,7 +34,7 @@
             if (rom != null)
             {
                 // ensure size
-                System.Diagnostics.Debug.Assert(rom.Size == file.Size, "File and Rom have equal Crc but the sizes are different.");
+                System.Diagnostics.Debug.Assert(file.Size == 0 || rom.Size == file.Size, "File and Rom have equal Crc but the sizes are different.");
 
                 this.logger.LogInformation($"Found '{file.Path}' as '{rom.Name}'");
 

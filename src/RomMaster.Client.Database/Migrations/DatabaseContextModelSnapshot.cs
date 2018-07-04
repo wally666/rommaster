@@ -62,7 +62,7 @@ namespace RomMaster.Client.Database.Migrations
 
                     b.Property<string>("Sha1");
 
-                    b.Property<uint>("Size");
+                    b.Property<long>("Size");
 
                     b.HasKey("Id");
 

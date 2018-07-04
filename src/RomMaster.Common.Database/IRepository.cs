@@ -8,9 +8,7 @@
 
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {
-        IQueryable<TEntity> All();
-
-        TEntity Find(int id);
+        // IQueryable<TEntity> All();
 
         Task<TEntity> FindAsync(int id);
 
@@ -18,11 +16,7 @@
 
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
 
-        void Add(TEntity entity);
-
         Task AddAsync(TEntity entity);
-
-        void AddRange(IEnumerable<TEntity> entities);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
     }

@@ -5,7 +5,7 @@
     public class UnitOfWorkFactory : IUnitOfWorkFactory
     {
         private readonly DatabaseContext databaseContext;
-        private IUnitOfWork unitOfWork;
+        // private IUnitOfWork unitOfWork;
 
         public UnitOfWorkFactory(DatabaseContext databaseContext)
         {
@@ -14,7 +14,8 @@
 
         public IUnitOfWork Create()
         {
-            return unitOfWork ?? (unitOfWork = new UnitOfWork(databaseContext));
+            return new UnitOfWork(databaseContext);
+            // return unitOfWork ?? (unitOfWork = new UnitOfWork(databaseContext));
         }
     }
 }

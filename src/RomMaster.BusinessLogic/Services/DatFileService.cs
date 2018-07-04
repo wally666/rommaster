@@ -21,7 +21,7 @@
             this.datFileParser = datFileParser;
         }
 
-        public override IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings)
+        protected override IEnumerable<Folder> GetFolders(IOptions<AppSettings> appSettings)
         {
             return appSettings.Value.DatRoots;
         }
