@@ -147,12 +147,12 @@
             }
 
             queue.Add(item);
+            queueIsEmpty.Reset();
         }
 
         public async Task WaitForQueueEmptyAsync(CancellationToken cancellationToken)
         {
             await Task.Factory.StartNew(() => queueIsEmpty.WaitOne(), cancellationToken);
-            queueIsEmpty.Reset();
         }
 
         protected virtual async Task<List<File>> Process(FileQueueItem item)

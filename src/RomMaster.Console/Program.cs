@@ -43,13 +43,13 @@
                                     .GetConnectionString("sqlite"))
                                 .EnableSensitiveDataLogging(false);
                         }, ServiceLifetime.Transient)
-                        //.AddSingleton<IUnitOfWorkFactory, UnitOfWorkFactory>()
                         .AddTransient<IUnitOfWorkFactory, UnitOfWorkFactory>()
                         .AddSingleton<Parser>()
                         .AddSingleton<FileWatcherService>()
                         .AddSingleton<DatFileService>()
                         .AddSingleton<RomFileService>()
                         .AddSingleton<ToSortFileService>()
+                        .AddSingleton<FixService>()
                         .AddSingleton<HashAlgorithm, Force.Crc32.Crc32Algorithm>()
                         .AddSingleton<IHostedService, ClientService>()
                         .Replace(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(TimedLogger<>)));

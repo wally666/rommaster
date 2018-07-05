@@ -9,12 +9,10 @@
 
     public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
     {
-        // private readonly DbContext context;
         private readonly DbSet<TEntity> dbSet;
 
         public Repository(DbContext context)
         {
-            // this.context = context;
             dbSet = context.Set<TEntity>();
         }
 
@@ -23,7 +21,7 @@
         //    return this.context.Entry(entity);
         //}
 
-        public IQueryable<TEntity> All()
+        public IQueryable<TEntity> GetAll()
         {
             return dbSet; //.AsNoTracking();
         }

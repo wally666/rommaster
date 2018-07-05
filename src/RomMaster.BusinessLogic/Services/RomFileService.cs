@@ -24,41 +24,41 @@
             return appSettings.Value.RomRoots;
         }
 
-        protected override Task<List<File>> Process(FileQueueItem item)
-        {
-            return base.Process(item);
-        }
+        //protected override Task<List<File>> Process(FileQueueItem item)
+        //{
+        //    return base.Process(item);
+        //}
 
-        protected override async Task PostProcess(File file)
-        {
-            // find dat
-            Rom rom;
-            using (var uow = unitOfWorkFactory.Create())
-            {
-                var repoRom = uow.GetRepository<Rom>();
-                rom = await repoRom.FindAsync(a => a.Crc == file.Crc && a.Crc != null || a.Size == file.Size && (a.Crc == null || file.Crc == null));
-            }
+        //protected override async Task PostProcess(File file)
+        //{
+        //    // find dat
+        //    Rom rom;
+        //    using (var uow = unitOfWorkFactory.Create())
+        //    {
+        //        var repoRom = uow.GetRepository<Rom>();
+        //        rom = await repoRom.FindAsync(a => a.Crc == file.Crc && a.Crc != null || a.Size == file.Size && (a.Crc == null || file.Crc == null));
+        //    }
 
-            if (rom != null)
-            {
-                if (IsArchive(file.Path))
-                {
-                    return;
-                }
+        //    if (rom != null)
+        //    {
+        //        if (IsArchive(file.Path))
+        //        {
+        //            return;
+        //        }
 
-                // ensure size
-                System.Diagnostics.Debug.Assert(/*file.Size == 0 || */rom.Size == file.Size, "File and Rom have equal Crc but the sizes are different.");
+        //        // ensure size
+        //        System.Diagnostics.Debug.Assert(/*file.Size == 0 || */rom.Size == file.Size, "File and Rom have equal Crc but the sizes are different.");
 
-                // ensure crc
-                System.Diagnostics.Debug.Assert(file.Crc == rom.Crc, "File and Rom have equal Crc but the sizes are different.");
+        //        // ensure crc
+        //        System.Diagnostics.Debug.Assert(file.Crc == rom.Crc, "File and Rom have equal Crc but the sizes are different.");
 
-                have++;
+        //        have++;
 
-                this.logger.LogInformation($"Found '{file.Path}' as '{rom.Name}' [{have}]");
-            }
+        //        this.logger.LogInformation($"Found '{file.Path}' as '{rom.Name}' [{have}]");
+        //    }
 
-            // set as Have
-            // ...
-        }
+        //    // set as Have
+        //    // ...
+        //}
     }
 }

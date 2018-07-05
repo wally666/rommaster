@@ -8,7 +8,7 @@
 
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {
-        // IQueryable<TEntity> All();
+        IQueryable<TEntity> GetAll();
 
         Task<TEntity> FindAsync(int id);
 
