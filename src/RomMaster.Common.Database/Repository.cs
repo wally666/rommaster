@@ -65,5 +65,10 @@
         {
             throw new System.NotImplementedException();
         }
+
+        public IQueryable<TEntity> SqlQuery(FormattableString sql)
+        {
+            return dbSet.FromSql(sql);
+        }
     }
 }

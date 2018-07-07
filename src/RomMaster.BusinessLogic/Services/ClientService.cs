@@ -28,12 +28,13 @@
             this.toSortFileService = toSortFileService;
             this.fixService = fixService;
 
-            this.fileWatcherService.DatFileAdded += DatFileAdded;
+            this.fileWatcherService.DatFileChanged += DatFileChanged;
         }
 
-        private void DatFileAdded(object sender, FileSystemEventArgs e)
+        private void DatFileChanged(object sender, FileSystemEventArgs e)
         {
             this.datFileService.Enqueue(e.FullPath);
+            this.fixService.Enqueue(e.FullPath);
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -47,35 +48,23 @@
             await romFileService.StartAsync(cancellationToken);
             await toSortFileService.StartAsync(cancellationToken);
 
-            await fixService.StartAsync(cancellationToken);
-
             logger.LogDebug("Application has been started.");
             await base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            logger.LogDebug($"{this.GetType()} is starting...");
+            logger.LogDebug("Starting...");
 
-            cancellationToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping..."));
+            cancellationToken.Register(() => logger.LogDebug("Background task is stopping..."));
 
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                await datFileService.WaitForQueueEmptyAsync(cancellationToken);
-                await romFileService.WaitForQueueEmptyAsync(cancellationToken);
-                await toSortFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await datFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await romFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await toSortFileService.WaitForQueueEmptyAsync(cancellationToken);
 
-                //await datFileService.WaitForQueueEmptyAsync(cancellationToken);
-                //await romFileService.WaitForQueueEmptyAsync(cancellationToken);
-                //await toSortFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await fixService.StartAsync(cancellationToken);
 
-                fixService.SetEvent();
-
-                logger.LogDebug($"All services are idle.");
-                break;
-            }
-
-            logger.LogDebug($"{this.GetType()} background task is stopping.");
+            logger.LogDebug("Background task is stopping.");
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

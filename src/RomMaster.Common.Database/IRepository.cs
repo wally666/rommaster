@@ -19,5 +19,7 @@
         Task AddAsync(TEntity entity);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
+
+        IQueryable<TEntity> SqlQuery(FormattableString sql);
     }
 }

@@ -9,13 +9,15 @@
     using Common;
     using Common.Database;
     using RomMaster.Client.Database.Models;
+    using System.Collections.Concurrent;
+    using RomMaster.BusinessLogic.Models;
 
     public class FixService : BackgroundService
     {
-        protected readonly ILogger<FixService> logger;
+        private readonly ILogger<FixService> logger;
         private readonly IOptions<AppSettings> appSettings;
-        protected readonly IUnitOfWorkFactory unitOfWorkFactory;
-        private readonly ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+        private readonly IUnitOfWorkFactory unitOfWorkFactory;
+        private readonly BlockingCollection<FileQueueItem> queue = new BlockingCollection<FileQueueItem>();
 
         public FixService(ILogger<FixService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory)
         {
@@ -26,37 +28,62 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogDebug($"{this.GetType()} is starting.");
-            stoppingToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
+            logger.LogDebug("Starting...");
+            stoppingToken.Register(() => logger.LogDebug("Background task is stopping."));
+
+            logger.LogInformation("Background task is procesing.");
+            await Process(stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await WaitForEventAsync(stoppingToken);
-                logger.LogInformation($"{this.GetType()} background task is procesing.");
-                await Process();
+                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
+                logger.LogInformation($"Background task is procesing [{queue.Count}] item '{item}'.");
+                //var files = await Process(item);
+                //foreach (var file in files)
+                //{
+                //    await PostProcess(file);
+                //}
             }
 
-            logger.LogDebug($"{this.GetType()} background task is stopping.");
+            logger.LogDebug("Background task is stopping.");
         }
 
-        public void SetEvent()
+        public void Enqueue(string file)
         {
-            manualResetEvent.Set();
+            var item = new FileQueueItem
+            {
+                File = file
+            };
+
+            queue.Add(item);
         }
 
-        private async Task WaitForEventAsync(CancellationToken cancellationToken)
+        private Task Process(CancellationToken stoppingToken)
         {
-            await Task.Factory.StartNew(() => manualResetEvent.WaitOne(), cancellationToken);
-            manualResetEvent.Reset();
-        }
+            logger.LogInformation($"Finding fixes...");
 
-        private Task Process()
-        {
             using (var uow = this.unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
+                var files = repoFile.SqlQuery($@"SELECT f.*
+FROM File f
+LEFT JOIN Rom r ON f.crc = r.crc AND f.size = r.size
+LEFT JOIN Game g ON g.id = r.gameid
+LEFT JOIN Dat d ON d.id = g.datid
+WHERE 
+f.size <> 0 
+ORDER BY f.path");
 
-                logger.LogInformation($"Files in DB: {repoFile.GetAll().Count()} background task is stopping.");
+//                var repoRom = uow.GetRepository<Rom>();
+//                var roms = repoRom.SqlQuery($@"SELECT r.*
+//FROM Dat d
+//JOIN Game g ON d.id = g.datid
+//JOIN Rom r ON r.gameid = g.id
+//JOIN File f ON f.size <> 0 AND f.crc = r.crc AND f.size = r.size");
+
+                // Enqueue()
+                var foundCount = files.Count();
+                logger.LogInformation($"Found '{foundCount}' files to fix.");
             }
 
             return Task.CompletedTask;

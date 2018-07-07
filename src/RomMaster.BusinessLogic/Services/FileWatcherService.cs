@@ -9,6 +9,7 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Common;
+    using System.Linq;
 
     public class FileWatcherService : IHostedService, IDisposable
     {
@@ -16,8 +17,9 @@
         private readonly IOptions<AppSettings> appSettings;
         private readonly List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
 
-        public FileSystemEventHandler DatFileAdded { get; set; }
-        public FileSystemEventHandler ToSortFileAdded { get; set; }
+        public FileSystemEventHandler DatFileChanged { get; set; }
+        public FileSystemEventHandler RomFileChanged { get; set; }
+        public FileSystemEventHandler ToSortFileChanged { get; set; }
 
         public FileWatcherService(ILogger<FileWatcherService> logger, IOptions<AppSettings> appSettings)
         {
@@ -27,35 +29,40 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("Starting");
+            logger.LogInformation("Starting...");
 
-            watchers.AddRange(CreateWatchers(appSettings.Value.DatRoots, OnDatFileAdded));
-            watchers.AddRange(CreateWatchers(appSettings.Value.RomRoots));
-            watchers.AddRange(CreateWatchers(appSettings.Value.ToSortRoots, OnToSOrtFileAdded));
+            watchers.AddRange(CreateWatchers(appSettings.Value.DatRoots, OnDatFileChanged));
+            watchers.AddRange(CreateWatchers(appSettings.Value.RomRoots, OnRomFileChanged));
+            watchers.AddRange(CreateWatchers(appSettings.Value.ToSortRoots, OnToSortFileChanged));
 
             return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.LogInformation("Stopping.");
+            logger.LogInformation("Stopping...");
 
             watchers.ForEach((watcher) => watcher.EnableRaisingEvents = false);
 
             return Task.CompletedTask;
         }
 
-        protected virtual void OnDatFileAdded(object sender, FileSystemEventArgs e)
+        protected virtual void OnDatFileChanged(object sender, FileSystemEventArgs e)
         {
-            DatFileAdded?.Invoke(sender, e);
+            DatFileChanged?.Invoke(sender, e);
         }
 
-        protected virtual void OnToSOrtFileAdded(object sender, FileSystemEventArgs e)
+        protected virtual void OnRomFileChanged(object sender, FileSystemEventArgs e)
         {
-            ToSortFileAdded?.Invoke(sender, e);
+            RomFileChanged?.Invoke(sender, e);
         }
 
-        private IEnumerable<FileSystemWatcher> CreateWatchers(List<Folder> folders, FileSystemEventHandler onChanged = null)
+        protected virtual void OnToSortFileChanged(object sender, FileSystemEventArgs e)
+        {
+            ToSortFileChanged?.Invoke(sender, e);
+        }
+
+        private IEnumerable<FileSystemWatcher> CreateWatchers(List<Folder> folders, FileSystemEventHandler onFileChanged = null)
         {
             foreach (var folder in folders)
             {
@@ -72,20 +79,24 @@
                                        | NotifyFilters.FileName | NotifyFilters.DirectoryName
                 };
 
-                watcher.Changed += OnChanged;
-                watcher.Created += OnChanged; // relevant? duplicated?
-                watcher.Deleted += OnChanged;
-                watcher.Renamed += OnRenamed;
-                watcher.Error += OnError;
-
-                if (onChanged != null)
+                if (onFileChanged != null)
                 {
                     watcher.Renamed += (sender, args) =>
                     {
-                        onChanged(sender, new FileSystemEventArgs(args.ChangeType, args.FullPath, args.Name));
+                        OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
                     };
-                    watcher.Created += onChanged;
-                    watcher.Changed += onChanged;
+                    watcher.Created += (sender, args) =>
+                    {
+                        OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
+                    };
+                    watcher.Changed += (sender, args) =>
+                    {
+                        OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
+                    };
+                    watcher.Deleted += (sender, args) =>
+                    {
+                        OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
+                    };
                 }
 
                 watcher.EnableRaisingEvents = folder.WatcherEnabled;
@@ -94,19 +105,40 @@
             }
         }
 
-        private void OnError(object sender, ErrorEventArgs e)
+        private void OnChanged(FileSystemEventHandler onChanged, object sender, WatcherChangeTypes changeType, string filePathName, string fileName, Folder folder)
         {
-            Console.WriteLine($"FileSystemWatcher.OnError: {e.GetException()}");
+            if (IsExcluded(filePathName, folder.Excludes))
+            {
+                logger.LogDebug($"File '{filePathName}' excluded from watching.");
+            }
+            else
+            {
+                logger.LogDebug($"File '{filePathName}' changed: '{changeType}'.");
+                onChanged(sender, new FileSystemEventArgs(changeType, filePathName, fileName));
+            }
         }
 
-        private void OnRenamed(object sender, RenamedEventArgs e)
+        private bool IsExcluded(string file, List<Exclude> excludes)
         {
-            Console.WriteLine($"FileSystemWatcher.OnRenamed: {e.ChangeType}, {e.FullPath}, {e.Name}, {e.OldFullPath}, {e.OldName}");
+            if (!excludes.Any())
+            {
+                return false;
+            }
+
+            foreach (var exclude in excludes)
+            {
+                if (IsExcluded(file, exclude))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-        private void OnChanged(object sender, FileSystemEventArgs e)
+        private bool IsExcluded(string file, Exclude exclude)
         {
-            Console.WriteLine($"FileSystemWatcher.OnChanged: {e.ChangeType}, {e.FullPath}, {e.Name}");
+            return exclude.Match(file);
         }
 
         public void Dispose()

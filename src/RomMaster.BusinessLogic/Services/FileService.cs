@@ -81,10 +81,7 @@
             await base.StartAsync(cancellationToken);
         }
 
-        private bool IsExcluded(string file)
-        {
-            return IsExcluded(file, Excludes);
-        }
+        private bool IsExcluded(string file) => IsExcluded(file, Excludes);
         
         private bool IsExcluded(string file, List<Exclude> excludes)
         {
@@ -104,15 +101,12 @@
             return false;
         }
 
-        private bool IsExcluded(string file, Exclude exclude)
-        {
-            return exclude.Match(file);
-        }
+        private bool IsExcluded(string file, Exclude exclude) => exclude.Match(file);
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogDebug($"{this.GetType()} is starting.");
-            stoppingToken.Register(() => logger.LogDebug($"{this.GetType()} background task is stopping."));
+            logger.LogDebug("Starting...");
+            stoppingToken.Register(() => logger.LogDebug("Background task is stopping."));
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -122,7 +116,7 @@
                 }
 
                 var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
-                logger.LogInformation($"{this.GetType()} background task is procesing [{queue.Count}] item '{item}'.");
+                logger.LogInformation($"Background task is procesing [{queue.Count}] item '{item}'.");
                 var files = await Process(item);
                 foreach (var file in files)
                 {
@@ -130,7 +124,7 @@
                 }
             }
 
-            logger.LogDebug($"{this.GetType()} background task is stopping.");
+            logger.LogDebug("Background task is stopping.");
         }
 
         public void Enqueue(string file)

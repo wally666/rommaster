@@ -5,17 +5,20 @@
 
     public class TimedLogger<T> : ILogger<T>
     {
-        private readonly ILogger _logger;
+        private readonly ILogger logger;
 
-        public TimedLogger(ILogger logger) => _logger = logger;
+        public TimedLogger(ILogger logger) => this.logger = logger;
 
-        public TimedLogger(ILoggerFactory loggerFactory) : this(new Logger<T>(loggerFactory)) { }
+        public TimedLogger(ILoggerFactory loggerFactory) 
+            : this(new Logger<T>(loggerFactory))
+        {
+        }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter) =>
-            _logger.Log(logLevel, eventId, state, exception, (s, ex) => $"[{DateTime.UtcNow:HH:mm:ss.fff}]: {formatter(s, ex)}");
+            logger.Log(logLevel, eventId, state, exception, (s, ex) => $"[{DateTime.UtcNow:HH:mm:ss.fff}]: {formatter(s, ex)}");
 
-        public bool IsEnabled(LogLevel logLevel) => _logger.IsEnabled(logLevel);
+        public bool IsEnabled(LogLevel logLevel) => logger.IsEnabled(logLevel);
 
-        public IDisposable BeginScope<TState>(TState state) => _logger.BeginScope(state);
+        public IDisposable BeginScope<TState>(TState state) => logger.BeginScope(state);
     }
 }
