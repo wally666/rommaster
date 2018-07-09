@@ -29,11 +29,20 @@
             this.fixService = fixService;
 
             this.fileWatcherService.DatFileChanged += DatFileChanged;
+            this.fileWatcherService.ToSortFileChanged += ToSortFileChanged;
         }
 
         private void DatFileChanged(object sender, FileSystemEventArgs e)
         {
             this.datFileService.Enqueue(e.FullPath);
+            this.fixService.Enqueue(e.FullPath);
+        }
+
+        private void ToSortFileChanged(object sender, FileSystemEventArgs e)
+        {
+            //TODO: wait for access to file
+            this.toSortFileService.Enqueue(e.FullPath);
+            //TODO: wait for end of thr toSOrtService processing
             this.fixService.Enqueue(e.FullPath);
         }
 

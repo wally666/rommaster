@@ -151,8 +151,14 @@
 
         protected virtual async Task<List<File>> Process(FileQueueItem item)
         {
-            File file = null;
             List<File> files = new List<File>();
+            if (IsFileLocked(item.File))
+            {
+                logger.LogDebug($"File '{item.File}' access is denied. Skipped.");
+                return files;
+            }
+
+            File file = null;
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
@@ -202,6 +208,11 @@
                         logger.LogError(ex, $"File '{item.File}' error.");
                         return files;
                     }
+                    catch (IndexOutOfRangeException ex)
+                    {
+                        logger.LogError(ex, $"File '{item.File}' corrupted.");
+                        return files;
+                    }
                 }
 
                 // add file regardless it is archive
@@ -240,6 +251,34 @@
         protected virtual Task PostProcess(File file)
         {
             return Task.CompletedTask;
+        }
+
+        private bool IsFileLocked(string file)
+        {
+            System.IO.FileStream stream = null;
+
+            try
+            {
+                var fileInfo = new System.IO.FileInfo(file);
+                //stream = fileInfo.Open(System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                stream = fileInfo.Open(System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.None);
+            }
+            catch (System.IO.IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
 
         protected bool IsArchive(string file)

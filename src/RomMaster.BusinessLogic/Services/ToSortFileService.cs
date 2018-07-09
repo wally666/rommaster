@@ -6,8 +6,6 @@
     using Common.Database;
     using System.Security.Cryptography;
     using System.Collections.Generic;
-    using RomMaster.Client.Database.Models;
-    using System.Threading.Tasks;
 
     public class ToSortFileService : FileService
     {

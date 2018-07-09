@@ -87,7 +87,7 @@
                     };
                     watcher.Created += (sender, args) =>
                     {
-                        OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
+                        // OnChanged(onFileChanged, sender, args.ChangeType, args.FullPath, args.Name, folder);
                     };
                     watcher.Changed += (sender, args) =>
                     {
@@ -114,7 +114,7 @@
             else
             {
                 logger.LogDebug($"File '{filePathName}' changed: '{changeType}'.");
-                onChanged(sender, new FileSystemEventArgs(changeType, filePathName, fileName));
+                onChanged(sender, new FileSystemEventArgs(changeType, System.IO.Path.GetDirectoryName(filePathName), fileName));
             }
         }
 

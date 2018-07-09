@@ -38,11 +38,7 @@
             {
                 var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
                 logger.LogInformation($"Background task is procesing [{queue.Count}] item '{item}'.");
-                //var files = await Process(item);
-                //foreach (var file in files)
-                //{
-                //    await PostProcess(file);
-                //}
+                await Process(item);
             }
 
             logger.LogDebug("Background task is stopping.");
@@ -60,16 +56,14 @@
 
         private Task Process(CancellationToken stoppingToken)
         {
-            logger.LogInformation($"Finding fixes...");
+            logger.LogInformation("Finding fixes...");
 
             using (var uow = this.unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
                 var files = repoFile.SqlQuery($@"SELECT f.*
 FROM File f
-LEFT JOIN Rom r ON f.crc = r.crc AND f.size = r.size
-LEFT JOIN Game g ON g.id = r.gameid
-LEFT JOIN Dat d ON d.id = g.datid
+JOIN Rom r ON f.crc = r.crc AND f.size = r.size
 WHERE 
 f.size <> 0 
 ORDER BY f.path");
@@ -87,6 +81,23 @@ ORDER BY f.path");
             }
 
             return Task.CompletedTask;
+        }
+
+        private async Task Process(FileQueueItem item)
+        {
+            logger.LogInformation($"Finding fix for '{item.File}'...");
+
+            using (var uow = this.unitOfWorkFactory.Create())
+            {
+                var repoFile = uow.GetRepository<File>();
+                var file = await repoFile.FindAsync(a => a.Path == item.File);
+                if (file == null)
+                {
+                    return;
+                }
+
+                logger.LogDebug($"Found file '{file.Path}'");
+            }
         }
     }
 }
