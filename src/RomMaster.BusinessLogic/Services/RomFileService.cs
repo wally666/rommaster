@@ -12,7 +12,7 @@
 
     public class RomFileService : FileService
     {
-        int have = 0;
+        //int have = 0;
 
         public RomFileService(ILogger<RomFileService> logger, IOptions<AppSettings> appSettings, IUnitOfWorkFactory unitOfWorkFactory, HashAlgorithm crc32)
             : base(logger, appSettings, unitOfWorkFactory, crc32)

@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B3888D4-98C1-4E01-B1D0-F584C0C1CFA4}"
 	ProjectSection(SolutionItems) = preProject
 		nlog.config = nlog.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.DatFileParser", "RomMaster.DatFileParser\RomMaster.DatFileParser.csproj", "{09426567-8A33-40C1-9D51-29DA7214C6BB}"
@@ -24,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Client.Database",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Common.Database", "RomMaster.Common.Database\RomMaster.Common.Database.csproj", "{A4FDECD8-5A24-4A74-9DE2-22747DDE24E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.Website", "RomMaster.Website\RomMaster.Website.csproj", "{DF0222BC-CFCC-4B03-AC9A-A51505DDA27B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.WebSite", "RomMaster.Website\RomMaster.WebSite.csproj", "{DF0222BC-CFCC-4B03-AC9A-A51505DDA27B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

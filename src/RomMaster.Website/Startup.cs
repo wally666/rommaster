@@ -16,7 +16,7 @@ using RomMaster.Common.Database;
 using RomMaster.DatFileParser;
 using System.Security.Cryptography;
 
-namespace RomMaster.Website
+namespace RomMaster.WebSite
 {
     public class Startup
     {
@@ -46,7 +46,7 @@ namespace RomMaster.Website
                     options.UseSqlite(Configuration.GetSection("AppSettings")
                             .GetConnectionString("sqlite"))
                         .EnableSensitiveDataLogging(false);
-                }, ServiceLifetime.Scoped)
+                }, ServiceLifetime.Transient)
                 .AddTransient<IUnitOfWorkFactory, UnitOfWorkFactory>()
                 .AddSingleton<Parser>()
                 .AddSingleton<FileWatcherService>()

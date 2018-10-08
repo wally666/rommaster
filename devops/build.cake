@@ -30,7 +30,7 @@ var buildNumber = Argument<string>("buildNumber", "");
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
-var solutions = GetFiles("./../src/**/*.sln");
+var solutions = GetFiles("./../src/*.sln");
 var outputDir = MakeAbsolute(Directory("./../artifacts/"));
 //var deployDir = MakeAbsolute(Directory("./../"));
 object tokens = null;
