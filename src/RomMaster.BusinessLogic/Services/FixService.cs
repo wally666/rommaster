@@ -44,11 +44,11 @@
             logger.LogDebug("Background task is stopping.");
         }
 
-        public void Enqueue(string file)
+        public void Enqueue(File file)
         {
             var item = new FileQueueItem
             {
-                File = file
+                File = file.Path
             };
 
             queue.Add(item);
@@ -61,23 +61,20 @@
             using (var uow = this.unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
-                var files = repoFile.SqlQuery($@"SELECT f.*
-FROM File f
-JOIN Rom r ON f.crc = r.crc AND f.size = r.size
-WHERE 
-f.size <> 0 
-ORDER BY f.path");
+                var files = repoFile.SqlQuery($@"
+                    SELECT f.*
+                    FROM File f
+                    JOIN Rom r ON f.crc = r.crc AND f.size = r.size
+                    WHERE f.size <> 0 
+                    ORDER BY f.path");
 
-//                var repoRom = uow.GetRepository<Rom>();
-//                var roms = repoRom.SqlQuery($@"SELECT r.*
-//FROM Dat d
-//JOIN Game g ON d.id = g.datid
-//JOIN Rom r ON r.gameid = g.id
-//JOIN File f ON f.size <> 0 AND f.crc = r.crc AND f.size = r.size");
-
-                // Enqueue()
                 var foundCount = files.Count();
-                logger.LogInformation($"Found '{foundCount}' files to fix.");
+                logger.LogInformation($"Found '{foundCount}' files to fix (including already fixed).");
+
+                foreach (var file in files)
+                {
+                    Enqueue(file);
+                }
             }
 
             return Task.CompletedTask;
@@ -85,19 +82,34 @@ ORDER BY f.path");
 
         private async Task Process(FileQueueItem item)
         {
-            logger.LogInformation($"Finding fix for '{item.File}'...");
+            var proggress = queue.Count;
 
-            using (var uow = this.unitOfWorkFactory.Create())
+            if (!System.IO.File.Exists(item.File))
             {
-                var repoFile = uow.GetRepository<File>();
-                var file = await repoFile.FindAsync(a => a.Path == item.File).ConfigureAwait(false);
-                if (file == null)
-                {
-                    return;
-                }
-
-                logger.LogDebug($"Found file '{file.Path}'");
+                logger.LogWarning($"[{proggress}] File '{item.File}' does not exist. Skipping.");
+                return;
             }
+
+            logger.LogInformation($"[{proggress}] Finding fix for '{item.File}'...");
+
+            //using (var uow = this.unitOfWorkFactory.Create())
+            //{
+            //    //TODO: Extend FileQueueItem and store the File entity instead querying again
+            //    var repoFile = uow.GetRepository<File>();
+            //    var file = await repoFile.FindAsync(a => a.Path == item.File).ConfigureAwait(false);
+
+            //    var romRepo = uow.GetRepository<Rom>();
+            //    var rom = await romRepo.FindAsync(a => file.Crc == a.Crc).ConfigureAwait(false);
+            //    if (rom != null)
+            //    {
+            //        System.Diagnostics.Debug.Assert(file.Size == rom.Size);
+            //        logger.LogInformation($"[{proggress}] Found file '{item.File}' as '{rom.Name}' rom.");
+            //    }
+            //    else
+            //    {
+            //        logger.LogInformation($"[{proggress}] Unknown file '{item.File}'.");
+            //    }
+            //}
         }
     }
 }

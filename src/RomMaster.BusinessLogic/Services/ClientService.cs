@@ -35,15 +35,17 @@
         private void DatFileChanged(object sender, FileSystemEventArgs e)
         {
             this.datFileService.Enqueue(e.FullPath);
-            this.fixService.Enqueue(e.FullPath);
+            // TODO: execute FixService for new Dat file data
+            // this.fixService.Enqueue(e.FullPath);
         }
 
         private void ToSortFileChanged(object sender, FileSystemEventArgs e)
         {
-            //TODO: wait for access to file
+            // TODO: wait for access to file
             this.toSortFileService.Enqueue(e.FullPath);
-            //TODO: wait for end of thr toSortService processing
-            this.fixService.Enqueue(e.FullPath);
+            // TODO: wait for end of thr toSortService processing
+            // TODO: execute FixService for new Dat file data
+            // this.fixService.Enqueue(e.FullPath);
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
