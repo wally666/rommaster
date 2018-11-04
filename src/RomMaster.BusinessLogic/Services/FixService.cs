@@ -32,13 +32,13 @@
             stoppingToken.Register(() => logger.LogDebug("Background task is stopping."));
 
             logger.LogInformation("Background task is procesing.");
-            await Process(stoppingToken);
+            await Process(stoppingToken).ConfigureAwait(false);
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
+                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken).ConfigureAwait(false);
                 logger.LogInformation($"Background task is procesing [{queue.Count}] item '{item}'.");
-                await Process(item);
+                await Process(item).ConfigureAwait(false);
             }
 
             logger.LogDebug("Background task is stopping.");
@@ -90,7 +90,7 @@ ORDER BY f.path");
             using (var uow = this.unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
-                var file = await repoFile.FindAsync(a => a.Path == item.File);
+                var file = await repoFile.FindAsync(a => a.Path == item.File).ConfigureAwait(false);
                 if (file == null)
                 {
                     return;

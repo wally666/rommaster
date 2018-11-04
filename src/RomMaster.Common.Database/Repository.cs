@@ -31,19 +31,19 @@
             return dbSet.Find(id);
         }
 
-        public async Task<TEntity> FindAsync(int id)
+        public Task<TEntity> FindAsync(int id)
         {
-            return await dbSet.FindAsync(id);
+            return dbSet.FindAsync(id);
         }
 
-        public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await dbSet.FirstOrDefaultAsync(predicate);
+            return dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await dbSet.AnyAsync(predicate);
+            return dbSet.AnyAsync(predicate);
         }
 
         public void Add(TEntity entity)
@@ -51,9 +51,9 @@
             dbSet.Add(entity);
         }
 
-        public async Task AddAsync(TEntity entity)
+        public Task AddAsync(TEntity entity)
         {
-            await dbSet.AddAsync(entity);
+            return dbSet.AddAsync(entity);
         }
 
         public void AddRange(IEnumerable<TEntity> entities)

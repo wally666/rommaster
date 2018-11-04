@@ -42,7 +42,7 @@
         {
             //TODO: wait for access to file
             this.toSortFileService.Enqueue(e.FullPath);
-            //TODO: wait for end of thr toSOrtService processing
+            //TODO: wait for end of thr toSortService processing
             this.fixService.Enqueue(e.FullPath);
         }
 
@@ -50,15 +50,15 @@
         {
             logger.LogDebug("Statring the application...");
 
-            await fileWatcherService.StartAsync(cancellationToken);
-            await datFileService.StartAsync(cancellationToken);
-            await datFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await fileWatcherService.StartAsync(cancellationToken).ConfigureAwait(false);
+            await datFileService.StartAsync(cancellationToken).ConfigureAwait(false);
+            await datFileService.WaitForQueueEmptyAsync(cancellationToken).ConfigureAwait(false);
 
-            await romFileService.StartAsync(cancellationToken);
-            await toSortFileService.StartAsync(cancellationToken);
+            await romFileService.StartAsync(cancellationToken).ConfigureAwait(false);
+            await toSortFileService.StartAsync(cancellationToken).ConfigureAwait(false);
 
             logger.LogDebug("Application has been started.");
-            await base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken).ConfigureAwait(false);
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -67,11 +67,11 @@
 
             cancellationToken.Register(() => logger.LogDebug("Background task is stopping..."));
 
-            await datFileService.WaitForQueueEmptyAsync(cancellationToken);
-            await romFileService.WaitForQueueEmptyAsync(cancellationToken);
-            await toSortFileService.WaitForQueueEmptyAsync(cancellationToken);
+            await datFileService.WaitForQueueEmptyAsync(cancellationToken).ConfigureAwait(false);
+            await romFileService.WaitForQueueEmptyAsync(cancellationToken).ConfigureAwait(false);
+            await toSortFileService.WaitForQueueEmptyAsync(cancellationToken).ConfigureAwait(false);
 
-            await fixService.StartAsync(cancellationToken);
+            await fixService.StartAsync(cancellationToken).ConfigureAwait(false);
 
             logger.LogDebug("Background task is stopping.");
         }
@@ -81,11 +81,11 @@
             logger.LogDebug("Stopping the application...");
 
             // Run background task clean-up actions
-            await fileWatcherService.StopAsync(cancellationToken);
-            await datFileService.StopAsync(cancellationToken);
-            await romFileService.StopAsync(cancellationToken);
-            await toSortFileService.StopAsync(cancellationToken);
-            await fixService.StopAsync(cancellationToken);
+            await fileWatcherService.StopAsync(cancellationToken).ConfigureAwait(false);
+            await datFileService.StopAsync(cancellationToken).ConfigureAwait(false);
+            await romFileService.StopAsync(cancellationToken).ConfigureAwait(false);
+            await toSortFileService.StopAsync(cancellationToken).ConfigureAwait(false);
+            await fixService.StopAsync(cancellationToken).ConfigureAwait(false);
 
             logger.LogDebug("Application has been stopped.");
         }

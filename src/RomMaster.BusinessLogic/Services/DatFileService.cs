@@ -39,7 +39,7 @@
                 var repoDat = uow.GetRepository<Dat>();
                 DatFileParser.Models.DataFile datFile;
 
-                if (await repoDat.AnyAsync(a => a.File != null && a.File.Path == file.Path))
+                if (await repoDat.AnyAsync(a => a.File != null && a.File.Path == file.Path).ConfigureAwait(false))
                 {
                     logger.LogDebug($"DatFile '{file.Path}' already processed. Skipping.");
                     return;
@@ -55,7 +55,7 @@
                     return;
                 }
 
-                Dat dat = await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version);
+                Dat dat = await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version).ConfigureAwait(false);
                 if (dat != null)
                 {
                     logger.LogDebug($"DatFile '{file.Path}' duplicated. Skipping.");
@@ -102,11 +102,11 @@
                     dat.Games.Add(g);
                 }
 
-                await repoDat.AddAsync(dat);
+                await repoDat.AddAsync(dat).ConfigureAwait(false);
                 
                 try
                 {
-                    await uow.CommitAsync();
+                    await uow.CommitAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

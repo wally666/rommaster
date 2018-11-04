@@ -16,9 +16,9 @@
             this.context = context;
         }
 
-        public async Task CommitAsync()
+        public Task CommitAsync()
         {
-            await context.SaveChangesAsync();
+            return context.SaveChangesAsync();
         }
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class, IEntity

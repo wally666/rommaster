@@ -86,7 +86,7 @@
                 logger.LogDebug($"Finished processing folder '{folder.Path}'. Found {filesCount} files.");
             }
 
-            await base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken).ConfigureAwait(false);
         }
 
         private bool IsExcluded(string file) => IsExcluded(file, Excludes);
@@ -123,12 +123,12 @@
                     queueIsEmpty.Set();
                 }
 
-                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken);
+                var item = await Task.Run(() => queue.Take(stoppingToken), stoppingToken).ConfigureAwait(false);
                 logger.LogInformation($"Background task is procesing [{queue.Count}] item '{item}'.");
-                var files = await Process(item);
+                var files = await Process(item).ConfigureAwait(false);
                 foreach (var file in files)
                 {
-                    await PostProcess(file);
+                    await PostProcess(file).ConfigureAwait(false);
                 }
             }
 
@@ -152,9 +152,9 @@
             queueIsEmpty.Reset();
         }
 
-        public async Task WaitForQueueEmptyAsync(CancellationToken cancellationToken)
+        public Task WaitForQueueEmptyAsync(CancellationToken cancellationToken)
         {
-            await Task.Factory.StartNew(() => queueIsEmpty.WaitOne(), cancellationToken);
+            return Task.Factory.StartNew(() => queueIsEmpty.WaitOne(), cancellationToken);
         }
 
         protected virtual async Task<List<File>> Process(FileQueueItem item)
@@ -170,7 +170,7 @@
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repoFile = uow.GetRepository<File>();
-                if (await repoFile.AnyAsync(a => a.Path == item.File))
+                if (await repoFile.AnyAsync(a => a.Path == item.File).ConfigureAwait(false))
                 {
                     logger.LogDebug($"File '{item.File}' already processed. Skipped.");
                     return files;
@@ -188,7 +188,7 @@
                             {
                                 var fileName = $"{item.File}#{entry.Key}";
 
-                                if (await repoFile.AnyAsync(a => a.Path == fileName))
+                                if (await repoFile.AnyAsync(a => a.Path == fileName).ConfigureAwait(false))
                                 {
                                     continue;
                                 }
@@ -201,7 +201,7 @@
                                     Size = entry.Size
                                 };
 
-                                await repoFile.AddAsync(file);
+                                await repoFile.AddAsync(file).ConfigureAwait(false);
                                 files.Add(file);
                             }
                         }
@@ -231,7 +231,7 @@
                     using (var stream = System.IO.File.Open(item.File, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
                     {
                         size = stream.Length;
-                        if (await repoFile.AnyAsync(a => a.Size == size))
+                        if (await repoFile.AnyAsync(a => a.Size == size).ConfigureAwait(false))
                         {
                             var hash = crc32.ComputeHash(stream);
                             computedCrc32 = BitConverter.ToString(hash).Replace("-", "");
@@ -247,10 +247,10 @@
                     Size = size //0 if archive
                 };
 
-                await repoFile.AddAsync(file);
+                await repoFile.AddAsync(file).ConfigureAwait(false);
                 files.Add(file);
 
-                await uow.CommitAsync();
+                await uow.CommitAsync().ConfigureAwait(false);
             }
 
             return files;
