@@ -5,6 +5,8 @@
 
     public class Folder
     {
+        public bool Active { get; set; } = true;
+
         public string Path { get; set; }
 
         public SearchOption SearchOptions { get; set; } = SearchOption.TopDirectoryOnly;

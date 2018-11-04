@@ -31,7 +31,9 @@
             {
                 if (excludes == null)
                 {
-                    excludes = GetFolders(this.appSettings).SelectMany(a => a.Excludes).ToList();
+                    excludes = GetFolders(this.appSettings)
+                        .Where(a => a.Active)
+                        .SelectMany(a => a.Excludes).ToList();
                 }
 
                 return excludes;
@@ -52,6 +54,12 @@
         {
             foreach (var folder in GetFolders(this.appSettings))
             {
+                if (!folder.Active)
+                {
+                    logger.LogWarning($"Folder '{folder.Path}' is not active. Skipping.");
+                    continue;
+                }
+
                 logger.LogDebug($"Processing folder '{folder.Path}' ({folder.SearchOptions})");
                 if (!System.IO.Directory.Exists(folder.Path))
                 {

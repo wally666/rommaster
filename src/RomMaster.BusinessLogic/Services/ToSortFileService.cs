@@ -18,27 +18,5 @@
         {
             return appSettings.Value.ToSortRoots;
         }
-
-        //protected override async Task PostProcess(File file)
-        //{
-        //    // find dat
-        //    Rom rom;
-        //    using (var uow = unitOfWorkFactory.Create())
-        //    {
-        //        var repoRom = uow.GetRepository<Rom>();
-        //        rom = await repoRom.FindAsync(a => a.Crc == file.Crc);
-        //    }
-
-        //    if (rom != null)
-        //    {
-        //        // ensure size
-        //        System.Diagnostics.Debug.Assert(file.Size == 0 || rom.Size == file.Size, "File and Rom have equal Crc but the sizes are different.");
-
-        //        this.logger.LogInformation($"Found '{file.Path}' as '{rom.Name}'");
-
-        //        // move to Rom folder
-        //        // ...
-        //    }
-        //}
     }
 }

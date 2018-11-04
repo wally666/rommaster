@@ -66,6 +66,12 @@
         {
             foreach (var folder in folders)
             {
+                if (!folder.Active)
+                {
+                    logger.LogWarning($"Folder '{folder.Path}' is not active. Skipping.");
+                    continue;
+                }
+
                 if (!Directory.Exists(folder.Path))
                 {
                     logger.LogWarning($"Folder '{folder.Path}' does not exist. Skipping.");
