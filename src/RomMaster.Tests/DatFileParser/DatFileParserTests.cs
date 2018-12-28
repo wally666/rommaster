@@ -1,6 +1,8 @@
 ﻿namespace RomMaster.Tests.DatFileParser
 {
     using FluentAssertions;
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using Xunit;
@@ -51,6 +53,13 @@
             }
         }
 
+        /// <summary>
+        /// var a = $("table a");
+        /// $.map(a, function(b) { return console.log(b.text + ' - ' + b.href); })
+        /// 
+        /// ^.*?\d([ ]-[ ])
+        /// </summary>
+        /// <param name="filePathName"></param>
         [Theory]
         [InlineData("fixDat_Sony - PlayStation Portable (20180309-050057).dat")]
         public void FilterGeneratedReport(string filePathName)
@@ -58,21 +67,36 @@
             var outputFilePathName = @"JDownloader.dat";
             var model = parser.Parse(filePathName);
 
-            filePathName = @"1fichier.com-PSP.txt";
+            filePathName = @"2fichier.com-PSP.txt";
             using (var sr = new StreamReader(filePathName))
             using (var sw = new StreamWriter(outputFilePathName))
             {
-                var regex = new System.Text.RegularExpressions.Regex("^(?<GAME_NAME>.*?)\\.7z");
+                var availableGames = new List<(string Name, string Line)>();
+                var regex = new System.Text.RegularExpressions.Regex("^(?<GAME_NAME>.*?)(\\s+\\[.\\])?\\.(7z|zip)");
                 while (!sr.EndOfStream)
                 {
                     var line = sr.ReadLine();
                     var gameName = regex.Match(line).Groups["GAME_NAME"].Value;
 
-                    var game = model.Games.FirstOrDefault(a => a.Name == gameName);
-                    if (game != null)
+                    availableGames.Add((Name: gameName, Line: line));
+                }
+
+                availableGames = availableGames.OrderBy(a => a.Name).ToList();
+
+                foreach (var game in model.Games.OrderBy(a => a.Name)) //.FirstOrDefault(a => missedGame.Name.StartsWith(a.Name) || gameName.StartsWith(a.Name.Replace("'", "_-_")));
+                {
+                    var missedGame = game.Name; //.Replace("'", "_-_");
+                    foreach (var availableGame in availableGames.Where(a => missedGame.StartsWith(a.Name)))
                     {
-                        System.Console.WriteLine(line);
-                        sw.WriteLine(line);
+                        if (availableGame.Name != null)
+                        {
+                            System.Console.WriteLine(availableGame.Line);
+                            sw.WriteLine(availableGame.Line);
+                        }
+                        else
+                        {
+                            sw.WriteLine($"? {missedGame}");
+                        }
                     }
                 }
 
