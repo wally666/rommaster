@@ -6,12 +6,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RomMaster.BusinessLogic\RomMaster.BusinessLogic.csproj" />
+    <ProjectReference Include="..\RomMaster.Client.Database\RomMaster.Client.Database.csproj" />
+    <ProjectReference Include="..\RomMaster.Common\RomMaster.Common.csproj" />
     <ProjectReference Include="..\RomMaster.WebSite.App\RomMaster.WebSite.App.csproj" />
   </ItemGroup>
 
