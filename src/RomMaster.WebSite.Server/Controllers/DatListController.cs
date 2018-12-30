@@ -10,23 +10,23 @@ using RomMaster.Common.Database;
 namespace RomMaster.WebSite.App.Controllers
 {
     [Route("api/[controller]")]
-    public class DatController : Controller
+    public class DatListController : Controller
     {
-        private readonly ILogger<DatController> logger;
+        private readonly ILogger<DatListController> logger;
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-        public DatController(ILogger<DatController> logger, IUnitOfWorkFactory unitOfWorkFactory)
+        public DatListController(ILogger<DatListController> logger, IUnitOfWorkFactory unitOfWorkFactory)
         {
             this.logger = logger;
             this.unitOfWorkFactory = unitOfWorkFactory;
         }
 
-        public IEnumerable<Dat> GetDats()
+        public IEnumerable<Dat> GetList()
         {
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repo = uow.GetRepository<Dat>();
-                return repo.GetAll();
+                return repo.GetAll().Take(100);
             }
         }
     }

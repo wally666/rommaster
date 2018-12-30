@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.DatFileParser", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Tests", "RomMaster.Tests\RomMaster.Tests.csproj", "{2B007175-88E3-4BC5-BA60-54874344488B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Console", "RomMaster.Console\RomMaster.Console.csproj", "{D6511A0F-CB43-434B-9F6A-E7323FDDAD8C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.BusinessLogic", "RomMaster.BusinessLogic\RomMaster.BusinessLogic.csproj", "{49B60D0B-A985-45A6-B204-0D168AC6CB38}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Common", "RomMaster.Common\RomMaster.Common.csproj", "{CDB642A1-F1F3-4881-BAE9-4962EE98569B}"
@@ -41,10 +39,6 @@ Global
 		{2B007175-88E3-4BC5-BA60-54874344488B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B007175-88E3-4BC5-BA60-54874344488B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B007175-88E3-4BC5-BA60-54874344488B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D6511A0F-CB43-434B-9F6A-E7323FDDAD8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D6511A0F-CB43-434B-9F6A-E7323FDDAD8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D6511A0F-CB43-434B-9F6A-E7323FDDAD8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D6511A0F-CB43-434B-9F6A-E7323FDDAD8C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{49B60D0B-A985-45A6-B204-0D168AC6CB38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{49B60D0B-A985-45A6-B204-0D168AC6CB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49B60D0B-A985-45A6-B204-0D168AC6CB38}.Release|Any CPU.ActiveCfg = Release|Any CPU

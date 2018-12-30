@@ -1,0 +1,50 @@
+﻿@using RomMaster.Client.Database.Models;
+@page "/romlist"
+@inject IHttpClientFactory clientFactory
+
+<h1>Rom List</h1>
+
+<p>(top 100)</p>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Crc</th>
+                <th>Md5</th>
+                <th>Sha1</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in list)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>@item.Size</td>
+                    <td>@item.Crc</td>
+                    <td>@item.Md5</td>
+                    <td>@item.Sha1</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+Rom[] list;
+
+protected override async Task OnInitAsync()
+{
+    var http = clientFactory.CreateClient("default");
+    list = await http.GetJsonAsync<Rom[]>("/api/romlist");
+}
+}

@@ -120,4 +120,12 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+
+    .table {
+        font-size: 0.6rem;
+    }
+
+    .table td {
+        padding: 0.3rem;
+    }
 }
