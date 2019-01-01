@@ -1,11 +1,9 @@
-﻿using RomMaster.Common.Database;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace RomMaster.WebSite.App.Services
 {
-    public interface IDataSource<out TEntity> where TEntity : IEntity
+    public interface IDataSource<TEntity>
     {
-        Task<IPagedResult<IEntity>> Fetch(PageRequest request);
-        // Task<PagedResult<IEntity>> Fetch(PageRequest request);
+        Task<PagedResult<TEntity>> FetchAsync(PageRequest request);
     }
 }

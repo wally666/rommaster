@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Blazor;
 using RomMaster.Common.Database;
-using System;
-using System.Collections.Generic;
+using RomMaster.WebSite.App.Models;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace RomMaster.WebSite.App.Services
 {
-    public class DataSource<TEntity> : IDataSource<IEntity> where TEntity : IEntity
+    public class DataSource<TEntity> : IDataSource<GenericViewModel<TEntity>> where TEntity : IEntity
     {
         private readonly IHttpClientFactory clientFactory;
         private readonly string restApiUrl;
@@ -19,11 +18,11 @@ namespace RomMaster.WebSite.App.Services
             this.restApiUrl = restApiUrl;
         }
 
-        public async Task<IPagedResult<IEntity>> Fetch(PageRequest request)
+        public async Task<PagedResult<GenericViewModel<TEntity>>> FetchAsync(PageRequest request)
         {
             var http = clientFactory.CreateClient("default");
-            var data = await http.GetJsonAsync<TEntity[]>(restApiUrl);
-            return new PagedResult<IEntity>(null);
+            var response = await http.GetJsonAsync<TEntity[]>(restApiUrl);
+            return new PagedResult<GenericViewModel<TEntity>>(response.Select(a => new GenericViewModel<TEntity>(a)).ToArray());
         }
     }
 }

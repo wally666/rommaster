@@ -1,23 +1,31 @@
-﻿@inherits GridBase
+﻿@typeparam TEntity
+@inherits GridBase<TEntity>
 
-<table class="table">
-    <thead>
-        <tr>
-            @foreach (var column in Options.Columns)
+@if (this.PagedResult != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                @foreach (var column in Options.Columns)
+                {
+                    <th>@column.Caption</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var model in PagedResult.List)
             {
-                <th>@column.Caption</th>
+                <tr>
+                    @foreach (var column in Options.Columns)
+                    {
+                        <th>@column.ValueFor(model)</th>
+                    }
+                </tr>
             }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var model in PagedResult.List)
-        {
-        <tr>
-            @foreach (var column in Options.Columns)
-            {
-                <th>column.Bind(model)</th>
-            }
-        </tr>
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+}
+else
+{
+    <a>loading...</a>
+}

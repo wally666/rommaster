@@ -69,7 +69,7 @@ namespace RomMaster.WebSite.Server
                 .AddSingleton<FixService>()
                 .AddSingleton<HashAlgorithm, Force.Crc32.Crc32Algorithm>()
 
-                .AddSingleton<Microsoft.Extensions.Hosting.IHostedService, ClientService>()
+//                .AddSingleton<Microsoft.Extensions.Hosting.IHostedService, ClientService>()
                 .Replace(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(TimedLogger<>)));
         }
 

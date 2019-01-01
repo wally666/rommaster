@@ -1,12 +1,7 @@
-﻿using RomMaster.Common.Database;
-using RomMaster.WebSite.App.Services;
-
-namespace RomMaster.WebSite.App.Components
+﻿namespace RomMaster.WebSite.App.Components
 {
-    public class GridOptions<TEntity> : IGridOptions where TEntity : IEntity
+    public class GridOptions<TEntity>
     {
-        public IGridColumn[] Columns { get; set; }
-
-        public IDataSource<IEntity> DataSource { get; set; }
+        public GridColumn<TEntity>[] Columns { get; set; }
     }
 }
