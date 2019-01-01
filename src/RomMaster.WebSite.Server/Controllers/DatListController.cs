@@ -26,7 +26,7 @@ namespace RomMaster.WebSite.App.Controllers
             using (var uow = unitOfWorkFactory.Create())
             {
                 var repo = uow.GetRepository<Dat>();
-                return repo.GetAll().Take(100);
+                return repo.GetAll(a => a.File).Take(100);
             }
         }
     }

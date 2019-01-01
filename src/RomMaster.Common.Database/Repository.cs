@@ -26,6 +26,17 @@
             return dbSet; //.AsNoTracking();
         }
 
+        public IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] navigationPropertyPaths)
+        {
+            IQueryable<TEntity> result = dbSet;
+            foreach (var navigationPropertyPath in navigationPropertyPaths)
+            {
+                result = result.Include(navigationPropertyPath);
+            }
+
+            return result; //.AsNoTracking();
+        }
+
         public TEntity Find(int id)
         {
             return dbSet.Find(id);

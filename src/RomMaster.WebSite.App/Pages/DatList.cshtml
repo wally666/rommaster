@@ -1,4 +1,8 @@
-﻿@using RomMaster.Client.Database.Models;
+﻿@using RomMaster.Client.Database.Models
+@using RomMaster.WebSite.App.Models
+@using RomMaster.WebSite.App.Components
+@using RomMaster.WebSite.App.Services
+
 @page "/datlist"
 @inject IHttpClientFactory clientFactory
 
@@ -6,51 +10,65 @@
 
 <p>(top 100)</p>
 
-@if (list == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Date</th>
-                <th>Name</th>
-                <th>Version</th>
-                <th>Author</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>File</th>
-                <th>Games</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in list)
-            {
-            <tr>
-                <td>@item.Id</td>
-                <td>@item.Date?.ToString("yyyy-MM-dd")</td>
-                <td>@item.Name</td>
-                <td>@item.Version</td>
-                <td>@item.Author</td>
-                <td>@item.Category</td>
-                <td>@item.Description</td>
-                <td>@item.File</td>
-                <td>@item.Games</td>
-            </tr>
-            }
-        </tbody>
-    </table>
-}
+<Grid Options="@gridOptions" DataSource="@dataSource"/>
 
 @functions {
-    Dat[] list;
+    GridOptions<Dat> gridOptions;
+    DataSource<Dat> dataSource;
+
+    protected override void OnInit()
+    {
+        gridOptions = new GridOptions<Dat>
+        {
+            Columns = new GridColumn<Dat>[] {
+        new GridSelectColumn<Dat> { Bind = new Func<GenericViewModel<Dat>, bool>(a => a.IsSelected) },
+        new GridTextColumn<Dat> { Caption = "Id", Bind = new Func<GenericViewModel<Dat>, int>(a => a.Item.Id) },
+        new GridTextColumn<Dat> { Caption = "Date", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Date?.ToString("yyyy-MM-dd")) },
+        new GridTextColumn<Dat> { Caption = "Name", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Name) },
+        new GridTextColumn<Dat> { Caption = "Version", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Version) },
+        new GridTextColumn<Dat> { Caption = "Author", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Author) },
+        new GridTextColumn<Dat> { Caption = "Category", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Category) },
+        new GridTextColumn<Dat> { Caption = "Description", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.Description) },
+        new GridTextColumn<Dat> { Caption = "File", Bind = new Func<GenericViewModel<Dat>, string>(a => a.Item.File.Path) },
+        new GridTextColumn<Dat> { Caption = "Games", Bind = new Func<GenericViewModel<Dat>, int>(a => a.Item.Games.Count) }
+            }
+        };
+
+        dataSource = new RomMaster.WebSite.App.Services.DataSource<Dat>(clientFactory, "/api/datlist");
+    }
+
+    /*
+    bool selectAll;
+    private bool SelectAll
+    {
+        get { return selectAll; }
+        set { selectAll = value; SelectAllChanged(value); }
+    }
+
+    List<GenericViewModel<Dat>> list;
 
     protected override async Task OnInitAsync()
     {
         var http = clientFactory.CreateClient("default");
-        list = await http.GetJsonAsync<Dat[]>("/api/datlist");
+        list = (await http.GetJsonAsync<Dat[]>("/api/datlist"))
+            .Select(a => new GenericViewModel<Dat>(a))
+            .ToList();
     }
+
+    private void SelectAllChanged(bool value)
+    {
+        foreach (var model in list)
+        {
+            model.IsSelected = value;
+        }
+
+        StateHasChanged(); // DOES NOT RE-RENDER THE PAGE!!!
+    }
+
+    private void SelectChanged(GenericViewModel<Dat> model, bool value)
+    {
+        model.IsSelected = value;
+        SelectAll = list.All(a => a.IsSelected);
+    }
+    */
 }

@@ -1,0 +1,23 @@
+﻿@inherits GridBase
+
+<table class="table">
+    <thead>
+        <tr>
+            @foreach (var column in Options.Columns)
+            {
+                <th>@column.Caption</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var model in PagedResult.List)
+        {
+        <tr>
+            @foreach (var column in Options.Columns)
+            {
+                <th>column.Bind(model)</th>
+            }
+        </tr>
+        }
+    </tbody>
+</table>

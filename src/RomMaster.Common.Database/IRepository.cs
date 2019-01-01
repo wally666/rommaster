@@ -10,6 +10,8 @@
     {
         IQueryable<TEntity> GetAll();
 
+        IQueryable<TEntity> GetAll(params Expression<Func<TEntity, object>>[] navigationPropertyPaths);
+
         Task<TEntity> FindAsync(int id);
 
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate);
