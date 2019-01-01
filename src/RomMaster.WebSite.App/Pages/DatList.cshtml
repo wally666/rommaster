@@ -22,7 +22,7 @@
         {
             Columns = new GridColumn<GenericViewModel<Dat>>[] {
                 new GridSelectColumn<GenericViewModel<Dat>> { Bind = (a => a.IsSelected) },
-                new GridTextColumn<GenericViewModel<Dat>, int> { Caption = "Id", Bind = (a => a.Item.Id) },
+                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Id", Bind = (a => a.Item.Id) },
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "Date", Bind = (a => a.Item.Date?.ToString("yyyy-MM-dd")) },
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "Name", Bind = (a => a.Item.Name) },
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "Version", Bind = (a => a.Item.Version) },
@@ -30,7 +30,7 @@
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "Category", Bind = (a => a.Item.Category) },
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "Description", Bind = (a => a.Item.Description) },
                 new GridTextColumn<GenericViewModel<Dat>> { Caption = "File", Bind = (a => a.Item.File.Path) },
-                new GridTextColumn<GenericViewModel<Dat>, int> { Caption = "Games", Bind = (a => a.Item.Games?.Count ?? 0) }
+                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Games", Bind = (a => a.Item.Games?.Count ?? 0) }
             }
         };
 
