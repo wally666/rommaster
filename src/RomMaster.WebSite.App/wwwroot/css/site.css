@@ -121,11 +121,16 @@ app {
         display: block;
     }
 
-    .table {
+    .app-table {
         font-size: 0.6rem;
     }
 
-    .table td {
-        padding: 0.3rem;
+    .app-table-wrapper {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .app-table-cell {
+        padding: 4px;
     }
 }

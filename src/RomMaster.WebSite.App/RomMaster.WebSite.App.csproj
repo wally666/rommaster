@@ -10,11 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Components\IGridColumn.cs" />
-    <Compile Remove="Components\IGridOptions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Blazor.FlexGrid" Version="0.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.7.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />

@@ -1,74 +1,32 @@
-﻿@using RomMaster.Client.Database.Models
-@using RomMaster.WebSite.App.Models
-@using RomMaster.WebSite.App.Components
+﻿@addTagHelper *, Blazor.FlexGrid
+@using Blazor.FlexGrid.DataAdapters
+@using Blazor.FlexGrid.Components.Events
+@using Blazor.FlexGrid.DataSet.Options
+
+@using RomMaster.Client.Database.Models
 @using RomMaster.WebSite.App.Services
 
 @page "/datlist"
 @inject IHttpClientFactory clientFactory
+@inject LazyDataSet<Dat> datService
 
 <h1>Dat List</h1>
 
-<p>(top 100)</p>
-
-<Grid Options="@gridOptions" DataSource="@dataSource"/>
+<GridView DataAdapter="@lazyLoadedTableDataAdapter"
+          LazyLoadingOptions="@(new LazyLoadingOptions { DataUri = "/api/datlist" })"
+          PageSize="20">
+</GridView>
 
 @functions {
-    GridOptions<GenericViewModel<Dat>> gridOptions;
-    DataSource<Dat> dataSource;
+    LazyLoadedTableDataAdapter<Dat> lazyLoadedTableDataAdapter;
 
     protected override void OnInit()
     {
-        gridOptions = new GridOptions<GenericViewModel<Dat>>
-        {
-            Columns = new GridColumn<GenericViewModel<Dat>>[] {
-                new GridSelectColumn<GenericViewModel<Dat>> { Bind = (a => a.IsSelected) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Id", Bind = (a => a.Item.Id) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Date", Bind = (a => a.Item.Date?.ToString("yyyy-MM-dd")) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Name", Bind = (a => a.Item.Name) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Version", Bind = (a => a.Item.Version) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Author", Bind = (a => a.Item.Author) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Category", Bind = (a => a.Item.Category) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Description", Bind = (a => a.Item.Description) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "File", Bind = (a => a.Item.File.Path) },
-                new GridTextColumn<GenericViewModel<Dat>> { Caption = "Games", Bind = (a => a.Item.Games?.Count ?? 0) }
-            }
-        };
-
-        dataSource = new RomMaster.WebSite.App.Services.DataSource<Dat>(clientFactory, "/api/datlist");
+        lazyLoadedTableDataAdapter = new LazyLoadedTableDataAdapter<Dat>(datService, datService);
     }
 
-    /*
-    bool selectAll;
-    private bool SelectAll
-    {
-        get { return selectAll; }
-        set { selectAll = value; SelectAllChanged(value); }
-    }
-
-    List<GenericViewModel<Dat>> list;
-
-    protected override async Task OnInitAsync()
-    {
-        var http = clientFactory.CreateClient("default");
-        list = (await http.GetJsonAsync<Dat[]>("/api/datlist"))
-            .Select(a => new GenericViewModel<Dat>(a))
-            .ToList();
-    }
-
-    private void SelectAllChanged(bool value)
-    {
-        foreach (var model in list)
-        {
-            model.IsSelected = value;
-        }
-
-        StateHasChanged(); // DOES NOT RE-RENDER THE PAGE!!!
-    }
-
-    private void SelectChanged(GenericViewModel<Dat> model, bool value)
-    {
-        model.IsSelected = value;
-        SelectAll = list.All(a => a.IsSelected);
-    }
-    */
+    //public void ItemSavedOperationFinished(SaveResultArgs saveResultArgs)
+    //{
+    //    Console.WriteLine($"Item saved result: {saveResultArgs.SaveResult}");
+    //}
 }
