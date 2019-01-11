@@ -8,7 +8,7 @@ namespace RomMaster.WebSite.App.Models.GridConfigurations
     {
         public void Configure(EntityTypeBuilder<Dat> builder)
         {
-            builder.Property(a => a.Id).HasCaption("Id").IsSortable().IsVisible(true);
+            // builder.Property(a => a.Id).HasCaption("Id").IsSortable().IsVisible(true);
             builder.Property(a => a.Name).HasCaption("Name").IsSortable().IsVisible(true);
             builder.Property(a => a.Version).HasCaption("Version").IsSortable().IsVisible(true);
             builder.Property(a => a.Date).HasCaption("Date").IsSortable().IsVisible(true).HasValueFormatter(a => a.HasValue ? a.Value.ToString("yyyy-MM-dd HH:mm:ss") : string.Empty);
@@ -17,6 +17,9 @@ namespace RomMaster.WebSite.App.Models.GridConfigurations
             builder.Property(a => a.Author).HasCaption("Author").IsSortable().IsVisible(true);
             builder.Property(a => a.File).HasCaption("File").IsSortable().IsVisible(true).HasValueFormatter(a => a.Path);
             builder.Property(a => a.Games).HasCaption("Games").IsSortable().IsVisible(true).HasValueFormatter(a => a.Count.ToString());
+
+            builder.Property(a => a.Id).HasOrder(100).HasCaption("Id").IsSortable().IsVisible(true)
+                .HasCompositeValueFormatter(a => $"<a href='/datlist/{a.Id}'>delete</a><br/><a href='/datlist/{a.Id}'>details</a>");
 
             builder.UseCssClasses(conf =>
             {
@@ -30,23 +33,6 @@ namespace RomMaster.WebSite.App.Models.GridConfigurations
             });
 
             // builder.AllowInlineEdit();
-            //
-            //builder.Property(e => e.Date)
-            //    .HasCaption("Date")
-            //    //.HasWritePermissionRestriction(perm => perm.IsInRole("TestRole1"))
-            //    .HasValueFormatter(d => d.ToShortDateString());
-
-            //builder.Property(e => e.Summary)
-            //    .HasCaption("MySummary")
-            //    .HasOrder(1)
-            //    //.HasValueFormatter(s => $"{s}!");
-            //    .HasCompositeValueFormatter(f => $"{f.Summary} <button>{f.TemperatureC}</button> {f.TemperatureF}");
-
-            //builder.Property(e => e.TemperatureC)
-            //    .IsSortable();
-
-            //builder.Property(e => e.TemperatureF)
-            //    .IsSortable();
         }
     }
 }
