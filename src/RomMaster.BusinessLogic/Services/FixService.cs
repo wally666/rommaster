@@ -80,14 +80,14 @@
             return Task.CompletedTask;
         }
 
-        private async Task Process(FileQueueItem item)
+        private /*async*/ Task Process(FileQueueItem item)
         {
             var proggress = queue.Count;
 
             if (!System.IO.File.Exists(item.File))
             {
                 logger.LogWarning($"[{proggress}] File '{item.File}' does not exist. Skipping.");
-                return;
+                return Task.FromResult<object>(null);
             }
 
             logger.LogInformation($"[{proggress}] Finding fix for '{item.File}'...");
@@ -110,6 +110,8 @@
             //        logger.LogInformation($"[{proggress}] Unknown file '{item.File}'.");
             //    }
             //}
+
+            return Task.FromResult<object>(null);
         }
     }
 }

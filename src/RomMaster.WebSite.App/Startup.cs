@@ -1,8 +1,10 @@
 using Blazor.FlexGrid;
-using Microsoft.AspNetCore.Blazor.Builder;
+//using Microsoft.AspNetCore.Blazor.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using RomMaster.Client.Database.Models;
 using RomMaster.WebSite.App.Services;
+
+using Microsoft.AspNetCore.Components.Builder;
 
 namespace RomMaster.WebSite.App
 {
@@ -33,7 +35,7 @@ namespace RomMaster.WebSite.App
             services.AddSingleton<LazyDataSet<Dat>>();
         }
 
-        public void Configure(IBlazorApplicationBuilder app)
+        public void Configure(IComponentsApplicationBuilder app)
         {
             app.AddComponent<App>("app");
         }
