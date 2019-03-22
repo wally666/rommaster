@@ -1,18 +1,16 @@
-﻿namespace RomMaster.Client.Database.Models
-{
-    using RomMaster.Common.Database;
-    using System;
-    using System.Collections.Generic;
+﻿using RomMaster.Common.Database;
+using System;
+using System.Collections.Generic;
 
+namespace RomMaster.Domain.Models
+{
     /*
-    
         <name>fix_Sony - PlayStation Portable</name>
 		<description>fix_</description>
 		<category>FIXDATFILE</category>
 		<version>06.20.2018 16:42:58</version>
 		<date>06.20.2018</date>
 		<author>RomVault</author>
-
     */
 
     public class Dat : IEntity

@@ -1,6 +1,6 @@
 ﻿using Blazor.FlexGrid.Components.Configuration;
 using Blazor.FlexGrid.Components.Configuration.Builders;
-using RomMaster.Client.Database.Models;
+using RomMaster.Domain.Models;
 
 namespace RomMaster.WebSite.App.Models.GridConfigurations
 {

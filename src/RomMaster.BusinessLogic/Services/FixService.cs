@@ -8,9 +8,9 @@
     using Microsoft.Extensions.Options;
     using Common;
     using Common.Database;
-    using RomMaster.Client.Database.Models;
     using System.Collections.Concurrent;
     using RomMaster.BusinessLogic.Models;
+    using RomMaster.Domain.Models;
 
     public class FixService : BackgroundService
     {

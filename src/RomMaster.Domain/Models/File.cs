@@ -1,7 +1,7 @@
-﻿namespace RomMaster.Client.Database.Models
-{
-    using RomMaster.Common.Database;
+﻿using RomMaster.Common.Database;
 
+namespace RomMaster.Domain.Models
+{
     public class File : IEntity
     {
         public int Id { get; private set; }

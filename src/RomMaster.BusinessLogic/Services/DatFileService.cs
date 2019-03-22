@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Client.Database.Models;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Common;
@@ -10,6 +9,7 @@
     using RomMaster.DatFileParser;
     using System.Collections.Generic;
     using System.Security.Cryptography;
+    using RomMaster.Domain.Models;
 
     public class DatFileService : FileService
     {

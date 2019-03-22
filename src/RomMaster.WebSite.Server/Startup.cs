@@ -1,8 +1,6 @@
-//using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-//using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RomMaster.BusinessLogic.Services;
 using RomMaster.Client.Database;
@@ -12,13 +10,11 @@ using RomMaster.DatFileParser;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Components.Server;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json.Serialization;
 using System.Linq;
 
 namespace RomMaster.WebSite.Server
@@ -48,12 +44,10 @@ namespace RomMaster.WebSite.Server
             //});
             ;
 
-            services.AddResponseCompression(
-                options =>
-            {
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
-                {
-                    MediaTypeNames.Application.Octet
+            services.AddResponseCompression(options => {
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
+                    MediaTypeNames.Application.Octet,
+                    // WasmMediaTypeNames.Application.Wasm
                 });
             });
 

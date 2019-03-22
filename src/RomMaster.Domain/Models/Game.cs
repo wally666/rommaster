@@ -1,8 +1,8 @@
-﻿namespace RomMaster.Client.Database.Models
-{
-    using RomMaster.Common.Database;
-    using System.Collections.Generic;
+﻿using RomMaster.Common.Database;
+using System.Collections.Generic;
 
+namespace RomMaster.Domain.Models
+{
     public class Game : IEntity
     {
         public int Id { get; private set; }

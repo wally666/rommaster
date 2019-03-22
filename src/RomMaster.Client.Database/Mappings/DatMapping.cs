@@ -2,7 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
-    using RomMaster.Client.Database.Models;
+    using RomMaster.Domain.Models;
 
     internal class DatMapping : IEntityTypeConfiguration<Dat>
     {

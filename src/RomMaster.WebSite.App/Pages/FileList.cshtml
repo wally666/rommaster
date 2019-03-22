@@ -1,4 +1,4 @@
-﻿@using RomMaster.Client.Database.Models;
+﻿@using RomMaster.Domain.Models;
 @page "/filelist"
 @inject IHttpClientFactory clientFactory
 
@@ -40,11 +40,11 @@ else
 }
 
 @functions {
-File[] list;
+    File[] list;
 
-protected override async Task OnInitAsync()
-{
-    var http = clientFactory.CreateClient("default");
-    list = await http.GetJsonAsync<File[]>("/api/filelist");
-}
+    protected override async Task OnInitAsync()
+    {
+        var http = clientFactory.CreateClient("default");
+        list = await http.GetJsonAsync<File[]>("/api/filelist");
+    }
 }

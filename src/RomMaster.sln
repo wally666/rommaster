@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B3888D4-98C1-4E01-B1D0-F584C0C1CFA4}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,9 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Client.Database",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.Common.Database", "RomMaster.Common.Database\RomMaster.Common.Database.csproj", "{A4FDECD8-5A24-4A74-9DE2-22747DDE24E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.WebSite.Server", "RomMaster.WebSite.Server\RomMaster.WebSite.Server.csproj", "{B83DC056-6080-4696-8BDA-3A51CD55064C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.WebSite.Server", "RomMaster.WebSite.Server\RomMaster.WebSite.Server.csproj", "{B83DC056-6080-4696-8BDA-3A51CD55064C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.WebSite.App", "RomMaster.WebSite.App\RomMaster.WebSite.App.csproj", "{A91356BD-2413-4BD7-B2DD-BE0C2209D012}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RomMaster.WebSite.App", "RomMaster.WebSite.App\RomMaster.WebSite.App.csproj", "{A91356BD-2413-4BD7-B2DD-BE0C2209D012}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RomMaster.Domain", "RomMaster.Domain\RomMaster.Domain.csproj", "{8262F242-59E2-414B-BB07-D5848AF3F6DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{A91356BD-2413-4BD7-B2DD-BE0C2209D012}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A91356BD-2413-4BD7-B2DD-BE0C2209D012}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A91356BD-2413-4BD7-B2DD-BE0C2209D012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8262F242-59E2-414B-BB07-D5848AF3F6DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8262F242-59E2-414B-BB07-D5848AF3F6DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8262F242-59E2-414B-BB07-D5848AF3F6DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8262F242-59E2-414B-BB07-D5848AF3F6DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

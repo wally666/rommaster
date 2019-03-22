@@ -12,8 +12,8 @@
     using Common.Database;
     using System.Security.Cryptography;
     using System;
-    using RomMaster.Client.Database.Models;
     using System.Collections.Generic;
+    using RomMaster.Domain.Models;
 
     public abstract class FileService : BackgroundService
     {
