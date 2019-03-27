@@ -21,6 +21,8 @@ Then run batch scripts in the following order:
 
 ### TODO
 
+[ ] To extend Dat model (name, description, category?, version, date?, author, email?, homepage?, url?, comment?, clrmamepro?, romcenter?
+
 1. Web UI (Blazor+SignalR)
 
 https://learn-blazor.com/

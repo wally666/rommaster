@@ -58,7 +58,7 @@
                 Dat dat = await repoDat.FindAsync(a => a.Name == datFile.Header.Name && a.Version == datFile.Header.Version).ConfigureAwait(false);
                 if (dat != null)
                 {
-                    logger.LogDebug($"DatFile '{file.Path}' duplicated. Skipping.");
+                    logger.LogDebug($"DatFile '{file.Path}' has been processed already. Skipping.");
                     return;
                 }
 
@@ -70,10 +70,7 @@
                     Category = datFile.Header.Category,
                     Author = datFile.Header.Author,
                     Date = ParseDateTime(datFile.Header.Date),
-                    File = new File
-                    {
-                        Path = file.Path
-                    }
+                    File = file
                 };
 
                 foreach (var game in datFile.Games)
@@ -135,6 +132,18 @@
                 return result;
             }
 
+            //2018-06-24
+            if (DateTime.TryParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+
+            //24.03.2018 20:02:12
+            if (DateTime.TryParseExact(date, "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+
             return null;
         }
 
@@ -142,6 +151,7 @@
         {
             if (file.Contains('#'))
             {
+                //TODO: Archived dat files are not supported yet
                 return false;
             }
 

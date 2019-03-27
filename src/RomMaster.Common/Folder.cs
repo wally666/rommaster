@@ -5,7 +5,7 @@
 
     public class Folder
     {
-        public bool Active { get; set; } = true;
+        public bool Enabled { get; set; } = true;
 
         public string Path { get; set; }
 

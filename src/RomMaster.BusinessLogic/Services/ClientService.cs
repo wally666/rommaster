@@ -52,6 +52,7 @@
         {
             logger.LogDebug("Statring the application...");
 
+            cancellationToken.Register(() => logger.LogDebug("Background task is stopping..."));
             await fileWatcherService.StartAsync(cancellationToken).ConfigureAwait(false);
             await datFileService.StartAsync(cancellationToken).ConfigureAwait(false);
             await datFileService.WaitForQueueEmptyAsync(cancellationToken).ConfigureAwait(false);

@@ -9,13 +9,13 @@ using RomMaster.Common.Database;
 using RomMaster.DatFileParser;
 using System.Net.Mime;
 using System.Security.Cryptography;
-using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace RomMaster.WebSite.Server
 {
@@ -32,17 +32,11 @@ namespace RomMaster.WebSite.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            // Adds the Server-Side Blazor services, and those registered by the app project's startup.
-            //            services.AddServerSideBlazor<App.Startup>();
-            // services.AddRazorComponents<App.Startup>();
-
-            services.AddMvc().AddNewtonsoftJson();
-            //    .AddNewtonsoftJson()
-            //    .AddJsonOptions(options =>
-            //{
-            //    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-            //});
-            ;
+            services
+                .AddMvc()
+                .AddNewtonsoftJson(options => {
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+            });
 
             services.AddResponseCompression(options => {
                 options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] {
@@ -51,7 +45,6 @@ namespace RomMaster.WebSite.Server
                 });
             });
 
-            // console
             services.AddOptions()
                 .Configure<AppSettings>(Configuration.GetSection("AppSettings"))
                 .AddDbContext<DatabaseContext>(options =>
@@ -60,6 +53,7 @@ namespace RomMaster.WebSite.Server
                             .GetConnectionString("sqlite"))
                         .EnableSensitiveDataLogging(false);
                 }, ServiceLifetime.Singleton)
+
                 .AddTransient<IUnitOfWorkFactory, UnitOfWorkFactory>()
 
                 .AddSingleton<Parser>()
@@ -69,8 +63,7 @@ namespace RomMaster.WebSite.Server
                 .AddSingleton<ToSortFileService>()
                 .AddSingleton<FixService>()
                 .AddSingleton<HashAlgorithm, Force.Crc32.Crc32Algorithm>()
-
-//                .AddSingleton<Microsoft.Extensions.Hosting.IHostedService, ClientService>()
+                .AddSingleton<IHostedService, ClientService>()
                 .Replace(ServiceDescriptor.Singleton(typeof(ILogger<>), typeof(TimedLogger<>)));
         }
 

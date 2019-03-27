@@ -66,7 +66,7 @@
         {
             foreach (var folder in folders)
             {
-                if (!folder.Active)
+                if (!folder.Enabled)
                 {
                     logger.LogWarning($"Folder '{folder.Path}' is not active. Skipping.");
                     continue;
@@ -120,7 +120,7 @@
             else
             {
                 logger.LogDebug($"File '{filePathName}' changed: '{changeType}'.");
-                onChanged(sender, new FileSystemEventArgs(changeType, System.IO.Path.GetDirectoryName(filePathName), fileName));
+                onChanged(sender, new FileSystemEventArgs(changeType, Path.GetDirectoryName(filePathName), Path.GetFileName(filePathName)));
             }
         }
 

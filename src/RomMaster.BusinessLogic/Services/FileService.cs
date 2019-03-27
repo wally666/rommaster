@@ -32,7 +32,7 @@
                 if (excludes == null)
                 {
                     excludes = GetFolders(this.appSettings)
-                        .Where(a => a.Active)
+                        .Where(a => a.Enabled)
                         .SelectMany(a => a.Excludes).ToList();
                 }
 
@@ -54,7 +54,7 @@
         {
             foreach (var folder in GetFolders(this.appSettings))
             {
-                if (!folder.Active)
+                if (!folder.Enabled)
                 {
                     logger.LogWarning($"Folder '{folder.Path}' is not active. Skipping.");
                     continue;
@@ -268,6 +268,11 @@
             try
             {
                 var fileInfo = new System.IO.FileInfo(file);
+                if (!fileInfo.Exists)
+                {
+                    return true;
+                }
+
                 //stream = fileInfo.Open(System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
                 stream = fileInfo.Open(System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.None);
             }
